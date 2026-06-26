@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Pressable, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../../src/context/ThemeContext';
+import { useAuth } from '../../src/hooks/useAuth';
 import { Typography } from '../../src/components/ui/Typography';
 import { Button } from '../../src/components/ui/Button';
 import { Input } from '../../src/components/ui/Input';
@@ -12,6 +12,7 @@ import { Spacing } from '../../src/constants/theme';
 export default function Login() {
   const router = useRouter();
   const { colors } = useTheme();
+  const { login: authLogin } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -38,24 +39,11 @@ export default function Login() {
     if (!validate()) return;
 
     try {
-      // Mock login validation
-      // Set AsyncStorage states for active session
-      await AsyncStorage.setItem('@onboarding_complete', 'true');
-      await AsyncStorage.setItem('@user_registered', 'true');
-
-      // Make sure we have a mock profile saved if not already
-      const existingProfile = await AsyncStorage.getItem('@mock_user_profile');
-      if (!existingProfile) {
-        const defaultProfile = {
-          name: 'Jane Doe',
-          email: email || 'jane.doe@example.com',
-          username: email ? email.split('@')[0] : 'janedoe',
-        };
-        await AsyncStorage.setItem('@mock_user_profile', JSON.stringify(defaultProfile));
-      }
+      // Mock login via useAuth
+      await authLogin(email);
 
       router.replace('/(tabs)/discover');
-    } catch (e) {
+    } catch {
       router.replace('/(tabs)/discover');
     }
   };
@@ -114,7 +102,7 @@ export default function Login() {
 
       <View style={styles.footer}>
         <Typography variant="body" color={colors.textSecondary}>
-          Don't have an account?{' '}
+          {"Don't have an account? "}
         </Typography>
         <Pressable onPress={() => router.push('/(auth)/register')}>
           <Typography variant="body" color={colors.textAccent} style={styles.registerLink}>

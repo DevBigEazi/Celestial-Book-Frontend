@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../../src/context/ThemeContext';
+import { useAuth } from '../../src/hooks/useAuth';
 import { Typography } from '../../src/components/ui/Typography';
 import { Button } from '../../src/components/ui/Button';
 import { ScreenWrapper } from '../../src/components/layout/ScreenWrapper';
 import { Spacing, Radius, Shadow } from '../../src/constants/theme';
+
 
 interface StepConfig {
   title: string;
@@ -56,6 +57,7 @@ const ONBOARDING_STEPS: StepConfig[] = [
 export default function Onboarding() {
   const router = useRouter();
   const { colors } = useTheme();
+  const { completeOnboarding } = useAuth();
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
   // Store user selections: keys are step indexes, values are selected options
@@ -104,10 +106,16 @@ export default function Onboarding() {
     } else {
       // Save results on the final step
       try {
-        await AsyncStorage.setItem('@onboarding_complete', 'true');
-        await AsyncStorage.setItem('@onboarding_answers', JSON.stringify(selections));
+        const quizResult = {
+          genres: selections[0] || [],
+          mood: selections[1]?.[0] || '',
+          personality: selections[2]?.[0] || '',
+          tropes: selections[3] || [],
+          readingHabit: selections[4]?.[0] || '',
+        };
+        await completeOnboarding(quizResult);
         router.replace('/(auth)/register');
-      } catch (e) {
+      } catch {
         // Fallback redirection
         router.replace('/(auth)/register');
       }
