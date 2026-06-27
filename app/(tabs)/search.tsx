@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, FlatList, Pressable } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useTheme } from '../../src/context/ThemeContext';
 import { Typography } from '../../src/components/ui/Typography';
 import { Input } from '../../src/components/ui/Input';
 import { ScreenWrapper } from '../../src/components/layout/ScreenWrapper';
+import { EmptyState } from '../../src/components/ui/EmptyState';
 import { mockBooks } from '../../src/mock/books';
 import { mockCommunities } from '../../src/mock/communities';
 import { mockClubs } from '../../src/mock/clubs';
-import { Spacing, Radius } from '../../src/constants/theme';
+import { Spacing } from '../../src/constants/theme';
 
 type SearchTab = 'books' | 'communities' | 'clubs';
 
 export default function Search() {
+  const router = useRouter();
   const { colors } = useTheme();
   const [activeTab, setActiveTab] = useState<SearchTab>('books');
   const [query, setQuery] = useState('');
@@ -78,21 +81,27 @@ export default function Search() {
             data={filteredBooks}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
-              <View style={[styles.resultItem, { borderBottomColor: colors.divider }]}>
+              <Pressable
+                onPress={() => router.push(`/(stack)/book/${item.id}`)}
+                style={({ pressed }) => [
+                  styles.resultItem,
+                  { borderBottomColor: colors.divider, opacity: pressed ? 0.7 : 1 }
+                ]}
+              >
                 <Typography variant="body" color={colors.textPrimary}>
                   {item.title}
                 </Typography>
                 <Typography variant="caption" color={colors.textSecondary}>
                   by {item.author} • ★ {item.rating}
                 </Typography>
-              </View>
+              </Pressable>
             )}
             ListEmptyComponent={
-              <View style={styles.empty}>
-                <Typography variant="body" color={colors.textMuted} align="center">
-                  No books found
-                </Typography>
-              </View>
+              <EmptyState
+                icon="book"
+                title="No books found"
+                message={`We couldn't find any books matching "${query}".`}
+              />
             }
           />
         )}
@@ -102,21 +111,27 @@ export default function Search() {
             data={filteredCommunities}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
-              <View style={[styles.resultItem, { borderBottomColor: colors.divider }]}>
+              <Pressable
+                onPress={() => router.push(`/(stack)/community/${item.id}`)}
+                style={({ pressed }) => [
+                  styles.resultItem,
+                  { borderBottomColor: colors.divider, opacity: pressed ? 0.7 : 1 }
+                ]}
+              >
                 <Typography variant="body" color={colors.textPrimary}>
                   {item.name}
                 </Typography>
                 <Typography variant="caption" color={colors.textSecondary}>
                   {item.genre} Community • {item.memberCount} members
                 </Typography>
-              </View>
+              </Pressable>
             )}
             ListEmptyComponent={
-              <View style={styles.empty}>
-                <Typography variant="body" color={colors.textMuted} align="center">
-                  No communities found
-                </Typography>
-              </View>
+              <EmptyState
+                icon="users"
+                title="No communities found"
+                message={`We couldn't find any communities matching "${query}".`}
+              />
             }
           />
         )}
@@ -126,21 +141,27 @@ export default function Search() {
             data={filteredClubs}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
-              <View style={[styles.resultItem, { borderBottomColor: colors.divider }]}>
+              <Pressable
+                onPress={() => router.push(`/(stack)/club/${item.id}`)}
+                style={({ pressed }) => [
+                  styles.resultItem,
+                  { borderBottomColor: colors.divider, opacity: pressed ? 0.7 : 1 }
+                ]}
+              >
                 <Typography variant="body" color={colors.textPrimary}>
                   {item.name}
                 </Typography>
                 <Typography variant="caption" color={colors.textSecondary}>
                   {item.isTemporary ? 'Temporary Club' : 'Permanent Club'} • {item.memberCount} members
                 </Typography>
-              </View>
+              </Pressable>
             )}
             ListEmptyComponent={
-              <View style={styles.empty}>
-                <Typography variant="body" color={colors.textMuted} align="center">
-                  No clubs found
-                </Typography>
-              </View>
+              <EmptyState
+                icon="heart"
+                title="No clubs found"
+                message={`We couldn't find any book clubs matching "${query}".`}
+              />
             }
           />
         )}
@@ -183,8 +204,5 @@ const styles = StyleSheet.create({
   resultItem: {
     paddingVertical: Spacing['4'],
     borderBottomWidth: 1,
-  },
-  empty: {
-    paddingTop: Spacing['10'],
   },
 });
