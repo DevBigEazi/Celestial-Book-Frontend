@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../../src/context/ThemeContext';
+import { useAuth } from '../../src/hooks/useAuth';
 import { Typography } from '../../src/components/ui/Typography';
 import { Button } from '../../src/components/ui/Button';
 import { Input } from '../../src/components/ui/Input';
@@ -12,6 +12,7 @@ import { Spacing } from '../../src/constants/theme';
 export default function Register() {
   const router = useRouter();
   const { colors } = useTheme();
+  const { register: authRegister } = useAuth();
 
   // Form states
   const [name, setName] = useState('');
@@ -50,29 +51,45 @@ export default function Register() {
     setErrors((prev) => ({ ...prev, [fieldName]: err }));
   };
 
-  const handleRegister = async () => {
-    // Validate all fields
-    validateField('name', name);
-    validateField('email', email);
-    validateField('password', password);
-    validateField('confirmPassword', confirmPassword);
+  const validateAll = (): boolean => {
+    const errs: Record<string, string> = {};
+    
+    if (!name.trim()) {
+      errs.name = 'Full name is required';
+    }
+    
+    if (!email.trim()) {
+      errs.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      errs.email = 'Invalid email address';
+    }
+    
+    if (!password) {
+      errs.password = 'Password is required';
+    } else if (password.length < 6) {
+      errs.password = 'Password must be at least 6 characters';
+    }
+    
+    if (!confirmPassword) {
+      errs.confirmPassword = 'Please confirm your password';
+    } else if (confirmPassword !== password) {
+      errs.confirmPassword = 'Passwords do not match';
+    }
 
-    const hasErrors = Object.values(errors).some((err) => !!err) || !name || !email || !password || !confirmPassword;
-    if (hasErrors) return;
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  const handleRegister = async () => {
+    if (!validateAll()) return;
 
     try {
-      // Save mock user & registration state
-      await AsyncStorage.setItem('@user_registered', 'true');
-      const mockUser = {
-        name,
-        email,
-        username: email.split('@')[0],
-      };
-      await AsyncStorage.setItem('@mock_user_profile', JSON.stringify(mockUser));
+      // Save mock user & registration state via useAuth
+      await authRegister(name, email);
 
       // Redirect to main tabs discover screen
       router.replace('/(tabs)/discover');
-    } catch (e) {
+    } catch {
       router.replace('/(tabs)/discover');
     }
   };

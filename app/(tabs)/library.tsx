@@ -1,20 +1,27 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, FlatList, Pressable } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useTheme } from '../../src/context/ThemeContext';
+import { useAuth } from '../../src/hooks/useAuth';
 import { Typography } from '../../src/components/ui/Typography';
 import { ScreenWrapper } from '../../src/components/layout/ScreenWrapper';
+import { EmptyState } from '../../src/components/ui/EmptyState';
+import { Card } from '../../src/components/ui/Card';
 import { mockBooks } from '../../src/mock/books';
 import { Spacing, Radius, Shadow } from '../../src/constants/theme';
+import { Image } from 'expo-image';
 
 type LibraryTab = 'reading' | 'saved' | 'purchased';
 
 export default function Library() {
+  const router = useRouter();
   const { colors } = useTheme();
+  const { library, saved } = useAuth();
   const [activeTab, setActiveTab] = useState<LibraryTab>('reading');
 
-  const readingBooks = mockBooks.filter((b) => b.isInLibrary);
-  const savedBooks = mockBooks.filter((b) => b.isSaved);
-  const purchasedBooks = mockBooks.filter((b) => b.genres.includes('Non-Fiction') || b.genres.includes('Biography')); // Mock purchased
+  const readingBooks = mockBooks.filter((b) => library.includes(b.id));
+  const savedBooks = mockBooks.filter((b) => saved.includes(b.id));
+  const purchasedBooks = mockBooks.filter((b) => b.genres.includes('Non-Fiction') || b.genres.includes('Biography')); 
 
   const activeBooks =
     activeTab === 'reading'
@@ -22,6 +29,35 @@ export default function Library() {
       : activeTab === 'saved'
       ? savedBooks
       : purchasedBooks;
+
+  const getEmptyStateProps = () => {
+    switch (activeTab) {
+      case 'reading':
+        return {
+          icon: 'book-open',
+          title: 'No books reading now',
+          message: 'Find a book you like on the Discover tab and add it here to start reading!',
+          actionLabel: 'Discover books',
+          onAction: () => router.push('/(tabs)/discover')
+        };
+      case 'saved':
+        return {
+          icon: 'heart',
+          title: 'No saved books',
+          message: 'Heart books during discovery to save them for later reading!',
+          actionLabel: 'Discover books',
+          onAction: () => router.push('/(tabs)/discover')
+        };
+      case 'purchased':
+        return {
+          icon: 'shopping-bag',
+          title: 'No purchases yet',
+          message: 'Buy books from their details screens to add them to your collection.',
+          actionLabel: 'Search books',
+          onAction: () => router.push('/(tabs)/search')
+        };
+    }
+  };
 
   return (
     <ScreenWrapper scrollEnabled={false} style={styles.container}>
@@ -66,9 +102,22 @@ export default function Library() {
           numColumns={2}
           columnWrapperStyle={styles.columnWrapper}
           renderItem={({ item }) => (
-            <View style={[styles.bookCard, { backgroundColor: colors.bgCard, borderColor: colors.border }]}>
-              <View style={[styles.coverPlaceholder, { backgroundColor: colors.bgSecondary }]}>
-                <Typography variant="title">📖</Typography>
+            <Card
+              onPress={() => router.push(`/(stack)/book/${item.id}`)}
+              style={styles.bookCard}
+              variant="outlined"
+            >
+              <View style={[styles.coverContainer, { backgroundColor: colors.bgSecondary }]}>
+                {item.coverUrl ? (
+                  <Image
+                    source={{ uri: item.coverUrl }}
+                    style={styles.coverImage}
+                    contentFit="contain"
+                    transition={200}
+                  />
+                ) : (
+                  <Typography variant="title">📖</Typography>
+                )}
               </View>
               <View style={styles.details}>
                 <Typography variant="label" color={colors.textPrimary} numberOfLines={1} style={styles.titleText}>
@@ -83,13 +132,11 @@ export default function Library() {
                   </Typography>
                 </View>
               </View>
-            </View>
+            </Card>
           )}
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Typography variant="body" color={colors.textMuted} align="center">
-                Your library is empty in this category.
-              </Typography>
+              <EmptyState {...getEmptyStateProps()} />
             </View>
           }
         />
@@ -134,10 +181,15 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     ...Shadow.sm,
   },
-  coverPlaceholder: {
+  coverContainer: {
     height: 120,
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
+  },
+  coverImage: {
+    width: '100%',
+    height: '100%',
   },
   details: {
     padding: Spacing['3'],

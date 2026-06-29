@@ -4,4 +4,5 @@ export * from './community';
 export * from './club';
 export * from './comment';
 export * from './storage';
+export * from './ai';
 

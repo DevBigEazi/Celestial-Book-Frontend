@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, StyleSheet, Pressable, Alert, ScrollView } from 'react-native';
+import { View, StyleSheet, Pressable, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { useTheme, ThemeMode } from '../../src/context/ThemeContext';
+import { useAuth } from '../../src/hooks/useAuth';
 import { Typography } from '../../src/components/ui/Typography';
 import { Button } from '../../src/components/ui/Button';
 import { ScreenWrapper } from '../../src/components/layout/ScreenWrapper';
@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 export default function Settings() {
   const router = useRouter();
   const { colors, mode, setMode } = useTheme();
+  const { logout, resetOnboarding } = useAuth();
 
   const handleSignOut = async () => {
     Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
@@ -22,10 +23,9 @@ export default function Settings() {
         style: 'destructive',
         onPress: async () => {
           try {
-            await AsyncStorage.clear();
-            router.replace('/(auth)/welcome');
-          } catch (e) {
-            router.replace('/(auth)/welcome');
+            await logout();
+          } catch {
+            // Ignored
           }
         },
       },
@@ -128,8 +128,11 @@ export default function Settings() {
                 {
                   text: 'Retake',
                   onPress: async () => {
-                    await AsyncStorage.removeItem('@onboarding_complete');
-                    router.replace('/(auth)/onboarding');
+                    try {
+                      await resetOnboarding();
+                    } catch {
+                      // Ignored
+                    }
                   },
                 },
               ]);

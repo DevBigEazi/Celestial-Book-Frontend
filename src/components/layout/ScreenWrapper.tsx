@@ -1,7 +1,9 @@
 import React from 'react';
-import { StyleSheet, ScrollView, View, ViewStyle, StatusBar } from 'react-native';
+import { StyleSheet, ScrollView, View, ViewStyle } from 'react-native';
 import { SafeAreaView, Edge } from 'react-native-safe-area-context';
 import { useTheme } from '../../hooks/useTheme';
+import { useResponsive } from '../../hooks/useResponsive';
+import { Radius, Shadow, Spacing } from '../../constants/theme';
 
 interface ScreenWrapperProps {
   children: React.ReactNode;
@@ -17,6 +19,7 @@ export function ScreenWrapper({
   edges = ['top', 'bottom', 'left', 'right'],
 }: ScreenWrapperProps) {
   const { colors } = useTheme();
+  const { isDesktop } = useResponsive();
 
   const containerStyle = [
     styles.container,
@@ -24,23 +27,43 @@ export function ScreenWrapper({
     style,
   ];
 
-  if (scrollEnabled) {
+  const content = scrollEnabled ? (
+    <ScrollView
+      contentContainerStyle={styles.scrollContent}
+      style={containerStyle}
+      keyboardShouldPersistTaps="handled"
+    >
+      {children}
+    </ScrollView>
+  ) : (
+    <View style={[styles.flexContent, containerStyle]}>{children}</View>
+  );
+
+  if (isDesktop) {
     return (
-      <SafeAreaView edges={edges} style={styles.safeArea}>
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          style={containerStyle}
-          keyboardShouldPersistTaps="handled"
+      <View style={[styles.desktopOuter, { backgroundColor: colors.bgPrimary }]}>
+        <View
+          style={[
+            styles.desktopFrame,
+            {
+              backgroundColor: colors.bgPrimary,
+              borderColor: colors.border,
+              ...Shadow.lg,
+              shadowColor: colors.textPrimary,
+            },
+          ]}
         >
-          {children}
-        </ScrollView>
-      </SafeAreaView>
+          <SafeAreaView edges={edges} style={styles.safeArea}>
+            {content}
+          </SafeAreaView>
+        </View>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView edges={edges} style={[styles.safeArea, containerStyle]}>
-      <View style={styles.flexContent}>{children}</View>
+    <SafeAreaView edges={edges} style={[styles.safeArea, { backgroundColor: colors.bgPrimary }]}>
+      {content}
     </SafeAreaView>
   );
 }
@@ -57,5 +80,20 @@ const styles = StyleSheet.create({
   },
   flexContent: {
     flex: 1,
+  },
+  desktopOuter: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: Spacing['4'],
+    paddingLeft: 240,
+    width: '100%',
+  },
+  desktopFrame: {
+    width: 420,
+    height: '95%',
+    borderRadius: Radius.xl,
+    borderWidth: 8,
+    overflow: 'hidden',
   },
 });

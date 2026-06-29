@@ -5,11 +5,17 @@ import { User, QuizResult } from '../types';
 export interface AuthContextValue {
   user: User | null;
   onboarded: boolean;
+  quizResult: QuizResult | null;
+  library: string[];
+  saved: string[];
   loading: boolean;
   login: (email: string) => Promise<void>;
   register: (name: string, email: string) => Promise<void>;
   logout: () => Promise<void>;
   completeOnboarding: (quizResult: QuizResult) => Promise<void>;
+  resetOnboarding: () => Promise<void>;
+  toggleSaveBook: (bookId: string) => Promise<void>;
+  toggleLibraryBook: (bookId: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -17,21 +23,36 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [onboarded, setOnboarded] = useState<boolean>(false);
+  const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
+  const [library, setLibrary] = useState<string[]>([]);
+  const [saved, setSaved] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   // Load state from AsyncStorage on mount
   useEffect(() => {
     async function loadAuthState() {
       try {
-        const [storedUser, storedOnboarded] = await Promise.all([
+        const [storedUser, storedOnboarded, storedQuiz, storedLib, storedSav] = await Promise.all([
           AsyncStorage.getItem('@cb/user'),
           AsyncStorage.getItem('@cb/onboarded'),
+          AsyncStorage.getItem('@cb/quiz_result'),
+          AsyncStorage.getItem('@cb/library'),
+          AsyncStorage.getItem('@cb/saved'),
         ]);
 
         if (storedUser) {
           setUser(JSON.parse(storedUser));
         }
         setOnboarded(storedOnboarded === 'true');
+        if (storedQuiz) {
+          setQuizResult(JSON.parse(storedQuiz));
+        }
+        if (storedLib) {
+          setLibrary(JSON.parse(storedLib));
+        }
+        if (storedSav) {
+          setSaved(JSON.parse(storedSav));
+        }
       } catch {
         // Ignored
       } finally {
@@ -45,7 +66,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string) => {
     setLoading(true);
     try {
-      // Create a mock user based on email (or fetch from storage if exists)
       const storedUserStr = await AsyncStorage.getItem('@cb/user');
       let loggedInUser: User;
 
@@ -91,7 +111,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     try {
       const newUser: User = {
-        id: 'user-001', // Standard mock user slug
+        id: 'user-001',
         name,
         username: email.split('@')[0],
         avatarUrl: `https://i.pravatar.cc/150?u=${email.split('@')[0]}`,
@@ -111,6 +131,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       ]);
 
       setUser(newUser);
+      setLibrary([]);
+      setSaved([]);
     } finally {
       setLoading(false);
     }
@@ -127,24 +149,74 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         AsyncStorage.removeItem('@cb/saved'),
         AsyncStorage.removeItem('@cb/joined_clubs'),
         AsyncStorage.removeItem('@cb/joined_communities'),
+        AsyncStorage.removeItem('@cb/reader_persona'),
       ]);
       setUser(null);
       setOnboarded(false);
+      setQuizResult(null);
+      setLibrary([]);
+      setSaved([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const completeOnboarding = async (quizResult: QuizResult) => {
+  const completeOnboarding = async (quiz: QuizResult) => {
     setLoading(true);
     try {
       await Promise.all([
         AsyncStorage.setItem('@cb/onboarded', 'true'),
-        AsyncStorage.setItem('@cb/quiz_result', JSON.stringify(quizResult)),
+        AsyncStorage.setItem('@cb/quiz_result', JSON.stringify(quiz)),
       ]);
       setOnboarded(true);
+      setQuizResult(quiz);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const resetOnboarding = async () => {
+    setLoading(true);
+    try {
+      await Promise.all([
+        AsyncStorage.removeItem('@cb/onboarded'),
+        AsyncStorage.removeItem('@cb/quiz_result'),
+        AsyncStorage.removeItem('@cb/reader_persona'),
+      ]);
+      setOnboarded(false);
+      setQuizResult(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleSaveBook = async (bookId: string) => {
+    try {
+      let nextSaved: string[];
+      if (saved.includes(bookId)) {
+        nextSaved = saved.filter((id) => id !== bookId);
+      } else {
+        nextSaved = [...saved, bookId];
+      }
+      await AsyncStorage.setItem('@cb/saved', JSON.stringify(nextSaved));
+      setSaved(nextSaved);
+    } catch (e) {
+      console.warn('Failed to toggle save state', e);
+    }
+  };
+
+  const toggleLibraryBook = async (bookId: string) => {
+    try {
+      let nextLibrary: string[];
+      if (library.includes(bookId)) {
+        nextLibrary = library.filter((id) => id !== bookId);
+      } else {
+        nextLibrary = [...library, bookId];
+      }
+      await AsyncStorage.setItem('@cb/library', JSON.stringify(nextLibrary));
+      setLibrary(nextLibrary);
+    } catch (e) {
+      console.warn('Failed to toggle library state', e);
     }
   };
 
@@ -153,11 +225,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         onboarded,
+        quizResult,
+        library,
+        saved,
         loading,
         login,
         register,
         logout,
         completeOnboarding,
+        resetOnboarding,
+        toggleSaveBook,
+        toggleLibraryBook,
       }}
     >
       {children}
