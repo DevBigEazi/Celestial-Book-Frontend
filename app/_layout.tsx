@@ -22,7 +22,7 @@ import { useAuth } from '../src/hooks/useAuth';
 SplashScreen.preventAutoHideAsync();
 
 export const unstable_settings = {
-  initialRouteName: '(auth)/welcome',
+  initialRouteName: '(auth)',
 };
 
 interface NavigationStackProps {
