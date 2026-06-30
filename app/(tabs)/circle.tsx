@@ -4,9 +4,8 @@ import { useTheme } from '../../src/context/ThemeContext';
 import { Typography } from '../../src/components/ui/Typography';
 import { ScreenWrapper } from '../../src/components/layout/ScreenWrapper';
 import { Button } from '../../src/components/ui/Button';
-import { Avatar } from '../../src/components/ui/Avatar';
-import { Card } from '../../src/components/ui/Card';
 import { Badge } from '../../src/components/ui/Badge';
+import { PostCard } from '../../src/components/circle';
 import { mockPosts } from '../../src/mock/posts';
 import { mockBooks } from '../../src/mock/books';
 import { getPostStarters } from '../../src/services/ai';
@@ -133,55 +132,12 @@ export default function Circle() {
         data={displayedPosts}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.feedList}
-        renderItem={({ item }) => {
-          const referencedBook = mockBooks.find(b => b.id === item.bookId);
-          return (
-            <Card style={styles.postCard} variant="outlined">
-              <View style={styles.postHeader}>
-                <Avatar url={item.author.avatarUrl} name={item.author.name} size="sm" />
-                <View style={styles.headerText}>
-                  <Typography variant="label" color={colors.textPrimary} style={styles.authorName}>
-                    {item.author.name}
-                  </Typography>
-                  <Typography variant="caption" color={colors.textMuted}>
-                    @{item.author.username}
-                  </Typography>
-                </View>
-              </View>
-
-              <Typography variant="body" color={colors.textPrimary} style={styles.content}>
-                {item.content}
-              </Typography>
-
-              {referencedBook && (
-                <View style={[styles.bookRef, { backgroundColor: colors.bgSecondary, borderColor: colors.border }]}>
-                  <Typography variant="caption" color={colors.textAccent} style={styles.bookRefText}>
-                    📖 Referencing Book: {referencedBook.title} by {referencedBook.author}
-                  </Typography>
-                </View>
-              )}
-
-              <View style={styles.postFooter}>
-                <Pressable onPress={() => handleLikePress(item.id)} style={styles.actionBtn}>
-                  <Ionicons
-                    name={item.isLiked ? 'heart' : 'heart-outline'}
-                    size={20}
-                    color={item.isLiked ? colors.error : colors.textSecondary}
-                  />
-                  <Typography variant="caption" color={colors.textSecondary} style={styles.actionText}>
-                    {item.likes}
-                  </Typography>
-                </Pressable>
-                <View style={styles.actionBtn}>
-                  <Ionicons name="chatbubble-outline" size={18} color={colors.textSecondary} />
-                  <Typography variant="caption" color={colors.textSecondary} style={styles.actionText}>
-                    {item.commentCount}
-                  </Typography>
-                </View>
-              </View>
-            </Card>
-          );
-        }}
+        renderItem={({ item }) => (
+          <PostCard
+            post={item}
+            onLikePress={() => handleLikePress(item.id)}
+          />
+        )}
       />
 
       {/* Floating Action Button */}
@@ -348,47 +304,6 @@ const styles = StyleSheet.create({
   },
   feedList: {
     paddingBottom: Spacing['12'],
-  },
-  postCard: {
-    padding: Spacing['4'],
-    marginBottom: Spacing['4'],
-  },
-  postHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: Spacing['3'],
-  },
-  headerText: {
-    justifyContent: 'center',
-    marginLeft: Spacing['3'],
-  },
-  authorName: {
-    fontWeight: '600',
-  },
-  content: {
-    marginBottom: Spacing['3'],
-    lineHeight: 20,
-  },
-  bookRef: {
-    borderRadius: Radius.sm,
-    borderWidth: 1,
-    padding: Spacing['2'],
-    marginBottom: Spacing['3'],
-  },
-  bookRefText: {
-    fontWeight: '500',
-  },
-  postFooter: {
-    flexDirection: 'row',
-    gap: Spacing['6'],
-  },
-  actionBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  actionText: {
-    marginLeft: Spacing['1'],
-    fontFamily: 'GeistMono_500Medium',
   },
   fab: {
     position: 'absolute',

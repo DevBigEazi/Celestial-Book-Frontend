@@ -3,6 +3,7 @@ import { StyleSheet, ScrollView, View, ViewStyle } from 'react-native';
 import { SafeAreaView, Edge } from 'react-native-safe-area-context';
 import { useTheme } from '../../hooks/useTheme';
 import { useResponsive } from '../../hooks/useResponsive';
+import { useSegments } from 'expo-router';
 import { Radius, Shadow, Spacing } from '../../constants/theme';
 
 interface ScreenWrapperProps {
@@ -20,6 +21,9 @@ export function ScreenWrapper({
 }: ScreenWrapperProps) {
   const { colors } = useTheme();
   const { isDesktop } = useResponsive();
+  const segments = useSegments();
+
+  const isInTabs = segments[0] === '(tabs)';
 
   const containerStyle = [
     styles.container,
@@ -41,7 +45,15 @@ export function ScreenWrapper({
 
   if (isDesktop) {
     return (
-      <View style={[styles.desktopOuter, { backgroundColor: colors.bgPrimary }]}>
+      <View
+        style={[
+          styles.desktopOuter,
+          {
+            backgroundColor: colors.bgPrimary,
+            paddingLeft: isInTabs ? 240 : 0,
+          },
+        ]}
+      >
         <View
           style={[
             styles.desktopFrame,
@@ -86,11 +98,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: Spacing['4'],
-    paddingLeft: 240,
     width: '100%',
   },
   desktopFrame: {
-    width: 420,
+    width: 480,
     height: '95%',
     borderRadius: Radius.xl,
     borderWidth: 8,

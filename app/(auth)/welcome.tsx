@@ -5,7 +5,7 @@ import { useTheme } from '../../src/context/ThemeContext';
 import { Typography } from '../../src/components/ui/Typography';
 import { Button } from '../../src/components/ui/Button';
 import { Spacing } from '../../src/constants/theme';
-import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 
 export default function Welcome() {
   const router = useRouter();
@@ -15,7 +15,11 @@ export default function Welcome() {
     <View style={[styles.container, { backgroundColor: colors.bgPrimary }]}>
       <View style={styles.brandContainer}>
         {/* Typographic Logo & Icon */}
-        <Ionicons name="book" size={80} color={colors.accent} style={styles.logoIcon} />
+        <Image
+          source={require('../../assets/images/splash-icon.png')}
+          style={styles.logoImage}
+          contentFit="contain"
+        />
         <Typography variant="display" color={colors.textPrimary} align="center">
           Celestial Books
         </Typography>
@@ -57,7 +61,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  logoIcon: {
+  logoImage: {
+    width: 120,
+    height: 120,
     marginBottom: Spacing['4'],
   },
   tagline: {

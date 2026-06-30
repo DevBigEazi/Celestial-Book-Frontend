@@ -5,8 +5,8 @@ import { useTheme } from '../../../src/context/ThemeContext';
 import { Typography } from '../../../src/components/ui/Typography';
 import { Button } from '../../../src/components/ui/Button';
 import { ScreenWrapper } from '../../../src/components/layout/ScreenWrapper';
-import { Avatar } from '../../../src/components/ui/Avatar';
 import { Card } from '../../../src/components/ui/Card';
+import { PostCard } from '../../../src/components/circle';
 import { mockClubs } from '../../../src/mock/clubs';
 import { mockPosts } from '../../../src/mock/posts';
 import { Spacing, Radius } from '../../../src/constants/theme';
@@ -236,34 +236,11 @@ export default function BookClubDetail() {
           </View>
         }
         renderItem={({ item }) => (
-          <Card style={styles.postCard} variant="outlined">
-            <View style={styles.postHeader}>
-              <Avatar url={item.author.avatarUrl} name={item.author.name} size="sm" />
-              <View style={styles.authorDetails}>
-                <Typography variant="label" color={colors.textPrimary} style={styles.authorName}>
-                  {item.author.name}
-                </Typography>
-                <Typography variant="caption" color={colors.textMuted}>
-                  @{item.author.username}
-                </Typography>
-              </View>
-            </View>
-            <Typography variant="body" color={colors.textPrimary} style={styles.postContent}>
-              {item.content}
-            </Typography>
-            <View style={styles.postFooter}>
-              <Pressable onPress={() => handleLikePress(item.id)} style={styles.actionBtn}>
-                <Ionicons
-                  name={item.isLiked ? 'heart' : 'heart-outline'}
-                  size={18}
-                  color={item.isLiked ? colors.error : colors.textSecondary}
-                />
-                <Typography variant="caption" color={colors.textSecondary} style={styles.actionText}>
-                  {item.likes}
-                </Typography>
-              </Pressable>
-            </View>
-          </Card>
+          <PostCard
+            post={item}
+            onLikePress={() => handleLikePress(item.id)}
+            showCommentsButton={true}
+          />
         )}
         ListEmptyComponent={
           <View style={styles.emptyFeed}>
@@ -407,36 +384,6 @@ const styles = StyleSheet.create({
   joinPromptCard: {
     padding: Spacing['4'],
     alignItems: 'center',
-  },
-  postCard: {
-    padding: Spacing['4'],
-    marginBottom: Spacing['3'],
-  },
-  postHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: Spacing['3'],
-  },
-  authorDetails: {
-    marginLeft: Spacing['3'],
-  },
-  authorName: {
-    fontWeight: '600',
-  },
-  postContent: {
-    lineHeight: 20,
-    marginBottom: Spacing['3'],
-  },
-  postFooter: {
-    flexDirection: 'row',
-  },
-  actionBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  actionText: {
-    marginLeft: Spacing['1'],
-    fontFamily: 'GeistMono_500Medium',
   },
   emptyFeed: {
     paddingVertical: Spacing['8'],

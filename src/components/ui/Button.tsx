@@ -3,6 +3,7 @@ import { Pressable, ActivityIndicator, StyleSheet, View, ViewStyle } from 'react
 import { useTheme } from '../../hooks/useTheme';
 import { Typography } from './Typography';
 import { Spacing, Radius } from '../../constants/theme';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, useReducedMotion } from 'react-native-reanimated';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
 export type ButtonSize = 'sm' | 'md' | 'lg';
@@ -31,6 +32,8 @@ export function Button({
   style,
 }: ButtonProps) {
   const { colors } = useTheme();
+  const scale = useSharedValue(1);
+  const reducedMotion = useReducedMotion();
 
   // Explicitly type variables as string/number to allow reassignment
   let backgroundColor: string = 'transparent';
@@ -86,37 +89,63 @@ export function Button({
       break;
   }
 
+  const handlePressIn = () => {
+    if (!isInteractionDisabled) {
+      scale.value = withSpring(0.96, { damping: 10, stiffness: 300 });
+    }
+  };
+
+  const handlePressOut = () => {
+    scale.value = withSpring(1, { damping: 10, stiffness: 300 });
+  };
+
+  const animatedStyle = useAnimatedStyle(() => {
+    if (reducedMotion) return {};
+    return {
+      transform: [{ scale: scale.value }],
+    };
+  });
+
   return (
-    <Pressable
-      onPress={onPress}
-      disabled={isInteractionDisabled}
-      style={({ pressed }) => [
-        styles.base,
-        {
-          backgroundColor,
-          borderColor,
-          borderWidth: borderColor !== 'transparent' ? 1 : 0,
-          paddingVertical,
-          paddingHorizontal,
-          width: fullWidth ? '100%' : 'auto',
-          opacity: pressed ? 0.8 : opacity,
-        },
+    <Animated.View
+      style={[
+        animatedStyle,
+        { width: fullWidth ? '100%' : 'auto' },
         style,
       ]}
     >
-      <View style={styles.content}>
-        {loading ? (
-          <ActivityIndicator size="small" color={labelColor} />
-        ) : (
-          <>
-            {icon && <View style={styles.iconContainer}>{icon}</View>}
-            <Typography variant={typographyVariant} color={labelColor} style={styles.label}>
-              {label}
-            </Typography>
-          </>
-        )}
-      </View>
-    </Pressable>
+      <Pressable
+        onPress={onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        disabled={isInteractionDisabled}
+        style={({ pressed }) => [
+          styles.base,
+          {
+            backgroundColor,
+            borderColor,
+            borderWidth: borderColor !== 'transparent' ? 1 : 0,
+            paddingVertical,
+            paddingHorizontal,
+            width: '100%',
+            opacity: pressed ? 0.8 : opacity,
+          },
+        ]}
+      >
+        <View style={styles.content}>
+          {loading ? (
+            <ActivityIndicator size="small" color={labelColor} />
+          ) : (
+            <>
+              {icon && <View style={styles.iconContainer}>{icon}</View>}
+              <Typography variant={typographyVariant} color={labelColor} style={styles.label}>
+                {label}
+              </Typography>
+            </>
+          )}
+        </View>
+      </Pressable>
+    </Animated.View>
   );
 }
 

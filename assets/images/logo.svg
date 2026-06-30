@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <!-- Background Gradient for Full App Icon -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#140b01" />
+      <stop offset="100%" stop-color="#1b4079" />
+    </linearGradient>
+    
+    <!-- Turquoise Glow Gradient -->
+    <radialGradient id="turquoiseGlow" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#00b4d8" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#00b4d8" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <!-- Background Layer (Optional, we'll make it solid for the master icon, but elements themselves can draw on it) -->
+  <rect width="1024" height="1024" rx="208" fill="url(#bgGrad)" />
+
+  <!-- Ambient Glow in the center -->
+  <circle cx="512" cy="450" r="350" fill="url(#turquoiseGlow)" />
+
+  <!-- Constellation Lines (Connecting stars above the book) -->
+  <g stroke="#00b4d8" stroke-width="6" opacity="0.8" stroke-dasharray="none" stroke-linecap="round">
+    <line x1="512" y1="200" x2="362" y2="300" />
+    <line x1="362" y1="300" x2="420" y2="420" />
+    <line x1="512" y1="200" x2="662" y2="300" />
+    <line x1="662" y1="300" x2="604" y2="420" />
+    <line x1="512" y1="200" x2="512" y2="350" />
+    <line x1="512" y1="350" x2="420" y2="420" />
+    <line x1="512" y1="350" x2="604" y2="420" />
+    <line x1="362" y1="300" x2="260" y2="240" />
+    <line x1="662" y1="300" x2="764" y2="240" />
+  </g>
+
+  <!-- Constellation Stars (Glowing Circles with Turquoise cores) -->
+  <g>
+    <!-- Star 1: Top Center (Polaris motif) -->
+    <circle cx="512" cy="200" r="24" fill="#fefeff" />
+    <circle cx="512" cy="200" r="36" fill="none" stroke="#00b4d8" stroke-width="4" opacity="0.6" />
+    
+    <!-- Star 2: Left Upper -->
+    <circle cx="362" cy="300" r="16" fill="#fefeff" />
+    
+    <!-- Star 3: Right Upper -->
+    <circle cx="662" cy="300" r="16" fill="#fefeff" />
+
+    <!-- Star 4: Center Mid -->
+    <circle cx="512" cy="350" r="14" fill="#00b4d8" />
+    <circle cx="512" cy="350" r="6" fill="#fefeff" />
+
+    <!-- Star 5: Left Lower -->
+    <circle cx="420" cy="420" r="18" fill="#fefeff" />
+    <circle cx="420" cy="420" r="28" fill="none" stroke="#00b4d8" stroke-width="3" opacity="0.5" />
+
+    <!-- Star 6: Right Lower -->
+    <circle cx="604" cy="420" r="18" fill="#fefeff" />
+    <circle cx="604" cy="420" r="28" fill="none" stroke="#00b4d8" stroke-width="3" opacity="0.5" />
+
+    <!-- Star 7: Far Left -->
+    <circle cx="260" cy="240" r="12" fill="#00b4d8" />
+
+    <!-- Star 8: Far Right -->
+    <circle cx="764" cy="240" r="12" fill="#00b4d8" />
+  </g>
+
+  <!-- Sparkling Cross Flares for polaris star -->
+  <path d="M 512 150 L 512 250 M 462 200 L 562 200" stroke="#fefeff" stroke-width="8" stroke-linecap="round" opacity="0.9" />
+
+  <!-- Open Book Symbol (Sleek turquoise and white curves with deep navy shadows) -->
+  <g transform="translate(0, 100)">
+    <!-- Book Shadow Base -->
+    <path d="M 512 600 C 400 580 250 630 180 670 L 180 470 C 250 430 400 380 512 400 C 624 380 774 430 844 470 L 844 670 C 774 630 624 580 512 600 Z" fill="#140b01" opacity="0.3" />
+
+    <!-- Left Page Outer (Regal Navy) -->
+    <path d="M 512 590 C 390 560 230 610 160 650 L 160 450 C 230 410 390 360 512 390 Z" fill="#1b4079" />
+    
+    <!-- Right Page Outer (Regal Navy) -->
+    <path d="M 512 590 C 634 560 794 410 864 450 L 864 650 C 794 610 634 560 512 590 Z" fill="#1b4079" />
+
+    <!-- Left Page Base (Turquoise Edge) -->
+    <path d="M 512 580 C 390 550 240 600 170 640 L 170 440 C 240 400 390 350 512 380 Z" fill="#00b4d8" />
+
+    <!-- Right Page Base (Turquoise Edge) -->
+    <path d="M 512 580 C 634 550 784 400 854 440 L 854 640 C 784 600 634 550 512 580 Z" fill="#00b4d8" />
+
+    <!-- Left Page Paper (Soft White Linen / White curves) -->
+    <path d="M 508 575 C 388 545 242 590 180 630 L 180 430 C 242 390 388 345 508 575 Z" fill="#fefeff" />
+
+    <!-- Right Page Paper (Soft White Linen / White curves) -->
+    <path d="M 516 575 C 636 545 782 390 844 430 L 844 630 C 782 590 636 545 516 575 Z" fill="#fefeff" />
+
+    <!-- Pages Layer Details (Suggesting text or depth) -->
+    <path d="M 220 460 C 280 430 380 400 470 415" stroke="#e6e4db" stroke-width="6" stroke-linecap="round" fill="none" />
+    <path d="M 220 500 C 280 470 380 440 470 455" stroke="#e6e4db" stroke-width="6" stroke-linecap="round" fill="none" />
+    <path d="M 220 540 C 280 510 380 480 470 495" stroke="#e6e4db" stroke-width="6" stroke-linecap="round" fill="none" />
+
+    <path d="M 804 460 C 744 430 644 400 554 415" stroke="#e6e4db" stroke-width="6" stroke-linecap="round" fill="none" />
+    <path d="M 804 500 C 744 470 644 440 554 455" stroke="#e6e4db" stroke-width="6" stroke-linecap="round" fill="none" />
+    <path d="M 804 540 C 744 510 644 480 554 495" stroke="#e6e4db" stroke-width="6" stroke-linecap="round" fill="none" />
+
+    <!-- Book Spine/Center Shadow -->
+    <path d="M 508 380 Q 512 378 516 380 L 516 580 Q 512 582 508 580 Z" fill="#140b01" opacity="0.4" />
+  </g>
+</svg>
