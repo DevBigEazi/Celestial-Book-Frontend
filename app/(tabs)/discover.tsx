@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, Pressable } from 'react-native';
 import { useTheme } from '../../src/context/ThemeContext';
 import { useAuth } from '../../src/hooks/useAuth';
 import { Typography } from '../../src/components/ui/Typography';
@@ -11,7 +11,7 @@ import { mockBooks } from '../../src/mock/books';
 import { getRecommendations, getWhyThisBook, getReaderPersona } from '../../src/services/ai';
 import { ReaderPersona, Book } from '../../src/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Spacing, Radius } from '../../src/constants/theme';
+import { Spacing, Radius, Shadow } from '../../src/constants/theme';
 import { GestureDetector, Gesture, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS, useReducedMotion } from 'react-native-reanimated';
 
@@ -221,6 +221,19 @@ export default function Discover() {
     };
   });
 
+  // Swipe Action overlay badge opacities
+  const saveOpacityStyle = useAnimatedStyle(() => {
+    if (reducedMotion) return { opacity: 0 };
+    const opacity = Math.min(Math.max(translateX.value / 120, 0), 1);
+    return { opacity };
+  });
+
+  const skipOpacityStyle = useAnimatedStyle(() => {
+    if (reducedMotion) return { opacity: 0 };
+    const opacity = Math.min(Math.max(-translateX.value / 120, 0), 1);
+    return { opacity };
+  });
+
   if (loading) {
     return (
       <View style={[styles.loadingContainer, { backgroundColor: colors.bgPrimary }]}>
@@ -258,26 +271,42 @@ export default function Discover() {
 
   return (
     <GestureHandlerRootView style={styles.root}>
-      <ScreenWrapper scrollEnabled={true} style={styles.container}>
+      <ScreenWrapper scrollEnabled={false} edges={['top', 'left', 'right']} style={styles.container}>
         <View style={styles.header}>
           <Typography variant="heading" color={colors.textPrimary}>
             Discover
           </Typography>
           <View style={[styles.toggleContainer, { backgroundColor: colors.bgSecondary }]}>
-            <Button
-              variant={mode === 'comfort' ? 'primary' : 'ghost'}
-              size="sm"
-              label="Comfort"
+            <Pressable
               onPress={() => setMode('comfort')}
-              style={styles.toggleBtn}
-            />
-            <Button
-              variant={mode === 'explorer' ? 'primary' : 'ghost'}
-              size="sm"
-              label="Explorer"
+              style={[
+                styles.toggleBtn,
+                mode === 'comfort' && [styles.toggleBtnActive, { backgroundColor: colors.accent, borderColor: colors.accent }]
+              ]}
+            >
+              <Typography
+                variant="caption"
+                color={mode === 'comfort' ? colors.accentText : colors.textSecondary}
+                style={styles.toggleLabel}
+              >
+                Comfort
+              </Typography>
+            </Pressable>
+            <Pressable
               onPress={() => setMode('explorer')}
-              style={styles.toggleBtn}
-            />
+              style={[
+                styles.toggleBtn,
+                mode === 'explorer' && [styles.toggleBtnActive, { backgroundColor: colors.accent, borderColor: colors.accent }]
+              ]}
+            >
+              <Typography
+                variant="caption"
+                color={mode === 'explorer' ? colors.accentText : colors.textSecondary}
+                style={styles.toggleLabel}
+              >
+                Explorer
+              </Typography>
+            </Pressable>
           </View>
         </View>
 
@@ -301,6 +330,19 @@ export default function Discover() {
                 whyBlurb={currentWhyBlurb}
                 whyLoading={whyLoading}
               />
+
+              {/* Swipe Action Overlay Badges */}
+              <Animated.View style={[styles.badgeOverlay, styles.saveBadge, saveOpacityStyle, { borderColor: colors.success }]}>
+                <Typography variant="heading" color={colors.success} style={styles.badgeText}>
+                  SAVE
+                </Typography>
+              </Animated.View>
+
+              <Animated.View style={[styles.badgeOverlay, styles.skipBadge, skipOpacityStyle, { borderColor: colors.error }]}>
+                <Typography variant="heading" color={colors.error} style={styles.badgeText}>
+                  SKIP
+                </Typography>
+              </Animated.View>
             </Animated.View>
           </GestureDetector>
         </View>
@@ -362,25 +404,64 @@ const styles = StyleSheet.create({
   toggleContainer: {
     flexDirection: 'row',
     borderRadius: Radius.full,
-    padding: Spacing['1'],
+    padding: 2,
+    alignItems: 'center',
   },
   toggleBtn: {
+    paddingHorizontal: Spacing['4'],
+    paddingVertical: Spacing['2'],
     borderRadius: Radius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  toggleBtnActive: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 1.5,
+    elevation: 2,
+  },
+  toggleLabel: {
+    fontWeight: '600',
   },
   cardStack: {
     flex: 1,
     position: 'relative',
-    minHeight: 520,
     marginBottom: Spacing['5'],
   },
   frontCard: {
     flex: 1,
+    position: 'relative',
+  },
+  badgeOverlay: {
+    position: 'absolute',
+    top: 40,
+    borderWidth: 4,
+    borderRadius: Radius.sm,
+    paddingHorizontal: Spacing['4'],
+    paddingVertical: Spacing['2'],
+    zIndex: 99,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+  },
+  saveBadge: {
+    left: 40,
+    transform: [{ rotate: '-15deg' }],
+  },
+  skipBadge: {
+    right: 40,
+    transform: [{ rotate: '15deg' }],
+  },
+  badgeText: {
+    fontWeight: 'bold',
+    letterSpacing: 2,
   },
   actions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: Spacing['3'],
-    paddingBottom: Spacing['6'],
+    paddingBottom: Spacing['2'],
   },
   actionBtn: {
     flex: 1,

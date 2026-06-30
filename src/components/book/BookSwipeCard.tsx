@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   coverContainer: {
-    height: 240,
+    height: 110,
     justifyContent: 'center',
     alignItems: 'center',
     borderTopLeftRadius: Radius.md,
