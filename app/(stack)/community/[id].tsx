@@ -5,8 +5,7 @@ import { useTheme } from '../../../src/context/ThemeContext';
 import { Typography } from '../../../src/components/ui/Typography';
 import { Button } from '../../../src/components/ui/Button';
 import { ScreenWrapper } from '../../../src/components/layout/ScreenWrapper';
-import { Avatar } from '../../../src/components/ui/Avatar';
-import { Card } from '../../../src/components/ui/Card';
+import { PostCard } from '../../../src/components/circle';
 import { mockCommunities } from '../../../src/mock/communities';
 import { mockPosts } from '../../../src/mock/posts';
 import { mockBooks } from '../../../src/mock/books';
@@ -105,8 +104,6 @@ export default function CommunityDetail() {
     setModalVisible(false);
   };
 
-  const activeBook = mockBooks[selectedBookIndex];
-
   return (
     <ScreenWrapper scrollEnabled={false} style={styles.container}>
       {/* Header */}
@@ -157,36 +154,11 @@ export default function CommunityDetail() {
           </View>
         }
         renderItem={({ item }) => (
-          <Card style={styles.postCard} variant="outlined">
-            <View style={styles.postHeader}>
-              <Avatar url={item.author.avatarUrl} name={item.author.name} size="sm" />
-              <View style={styles.postAuthorInfo}>
-                <Typography variant="label" color={colors.textPrimary} style={styles.authorName}>
-                  {item.author.name}
-                </Typography>
-                <Typography variant="caption" color={colors.textMuted}>
-                  @{item.author.username}
-                </Typography>
-              </View>
-            </View>
-
-            <Typography variant="body" color={colors.textPrimary} style={styles.postContent}>
-              {item.content}
-            </Typography>
-
-            <View style={styles.postFooter}>
-              <Pressable onPress={() => handleLikePress(item.id)} style={styles.actionBtn}>
-                <Ionicons
-                  name={item.isLiked ? 'heart' : 'heart-outline'}
-                  size={18}
-                  color={item.isLiked ? colors.error : colors.textSecondary}
-                />
-                <Typography variant="caption" color={colors.textSecondary} style={styles.actionText}>
-                  {item.likes}
-                </Typography>
-              </Pressable>
-            </View>
-          </Card>
+          <PostCard
+            post={item}
+            onLikePress={() => handleLikePress(item.id)}
+            showCommentsButton={true}
+          />
         )}
         ListEmptyComponent={
           <View style={styles.emptyFeed}>
@@ -259,7 +231,7 @@ export default function CommunityDetail() {
                 <Button
                   variant="outline"
                   size="sm"
-                  label="💡 Ask Claude for Discussion Ideas"
+                  label="💡 Get AI Post Starters"
                   onPress={handleFetchAiSuggestions}
                   loading={aiLoading}
                   style={styles.aiBtn}
@@ -269,7 +241,7 @@ export default function CommunityDetail() {
               {aiSuggestions.length > 0 && (
                 <View style={[styles.suggestionsBox, { backgroundColor: colors.bgSecondary, borderColor: colors.border }]}>
                   <Typography variant="caption" color={colors.accent} style={styles.suggestionsTitle}>
-                    DISCUSSION IDEAS (Tap to use):
+                    CLAUDE SUGGESTIONS (Tap to use):
                   </Typography>
                   {aiSuggestions.map((suggestion, index) => (
                     <Pressable
@@ -286,10 +258,10 @@ export default function CommunityDetail() {
               )}
 
               <Typography variant="label" color={colors.textSecondary} style={styles.fieldLabel}>
-                Your Message:
+                Your Thoughts:
               </Typography>
               <TextInput
-                placeholder={`What are your thoughts on ${activeBook.title} in the context of ${community.name}?`}
+                placeholder={`Post to ${community.name}...`}
                 placeholderTextColor={colors.textMuted}
                 value={postContent}
                 onChangeText={setPostContent}
@@ -307,7 +279,7 @@ export default function CommunityDetail() {
 
               <Button
                 variant="primary"
-                label="Share in Community"
+                label="Post"
                 onPress={handleCreatePost}
                 disabled={!postContent.trim()}
                 style={styles.submitBtn}
@@ -353,20 +325,20 @@ const styles = StyleSheet.create({
   },
   hero: {
     alignItems: 'center',
-    marginBottom: Spacing['6'],
-    borderBottomWidth: 1,
-    borderColor: 'transparent', // Overriden by theme divider or similar
     paddingBottom: Spacing['5'],
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0ded6',
+    marginBottom: Spacing['5'],
   },
   coverImage: {
     width: '100%',
-    height: 120,
+    height: 150,
     borderRadius: Radius.md,
     marginBottom: Spacing['4'],
   },
   coverPlaceholder: {
     width: '100%',
-    height: 120,
+    height: 150,
     borderRadius: Radius.md,
     justifyContent: 'center',
     alignItems: 'center',
@@ -374,54 +346,23 @@ const styles = StyleSheet.create({
   },
   communityName: {
     fontWeight: 'bold',
+    marginBottom: Spacing['1'],
   },
   members: {
-    marginTop: Spacing['1'],
     marginBottom: Spacing['3'],
   },
   description: {
-    paddingHorizontal: Spacing['4'],
-    marginBottom: Spacing['5'],
-    lineHeight: 18,
+    lineHeight: 20,
+    marginBottom: Spacing['4'],
   },
   joinBtn: {
-    width: 160,
-    marginBottom: Spacing['6'],
+    alignSelf: 'stretch',
+    marginBottom: Spacing['4'],
   },
   feedTitle: {
     alignSelf: 'flex-start',
     fontWeight: '600',
-    marginBottom: Spacing['2'],
-  },
-  postCard: {
-    padding: Spacing['4'],
-    marginBottom: Spacing['3'],
-  },
-  postHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: Spacing['3'],
-  },
-  postAuthorInfo: {
-    marginLeft: Spacing['3'],
-  },
-  authorName: {
-    fontWeight: '600',
-  },
-  postContent: {
-    lineHeight: 20,
-    marginBottom: Spacing['3'],
-  },
-  postFooter: {
-    flexDirection: 'row',
-  },
-  actionBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  actionText: {
-    marginLeft: Spacing['1'],
-    fontFamily: 'GeistMono_500Medium',
+    marginTop: Spacing['2'],
   },
   emptyFeed: {
     paddingVertical: Spacing['8'],
@@ -446,7 +387,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopLeftRadius: Radius.xl,
     borderTopRightRadius: Radius.xl,
-    height: '75%',
+    height: '85%',
     padding: Spacing['5'],
   },
   modalHeader: {

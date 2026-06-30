@@ -14,6 +14,7 @@ import {
   GeistMono_400Regular,
   GeistMono_500Medium,
 } from '@expo-google-fonts/geist-mono';
+import { Ionicons } from '@expo/vector-icons';
 import { ThemeProvider, useTheme } from '../src/context/ThemeContext';
 import { AuthProvider } from '../src/context/AuthContext';
 import { useAuth } from '../src/hooks/useAuth';
@@ -22,7 +23,7 @@ import { useAuth } from '../src/hooks/useAuth';
 SplashScreen.preventAutoHideAsync();
 
 export const unstable_settings = {
-  initialRouteName: '(auth)/welcome',
+  initialRouteName: '(auth)',
 };
 
 interface NavigationStackProps {
@@ -89,6 +90,7 @@ export default function RootLayout() {
     GeistSans_700Bold: Geist_700Bold,
     GeistMono_400Regular,
     GeistMono_500Medium,
+    ...Ionicons.font,
   });
 
   const fontsLoaded = loaded || !!error;

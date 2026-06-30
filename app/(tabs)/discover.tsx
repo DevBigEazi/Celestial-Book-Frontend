@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, Pressable } from 'react-native';
 import { useTheme } from '../../src/context/ThemeContext';
 import { useAuth } from '../../src/hooks/useAuth';
 import { Typography } from '../../src/components/ui/Typography';
 import { Button } from '../../src/components/ui/Button';
 import { ScreenWrapper } from '../../src/components/layout/ScreenWrapper';
-import { Card } from '../../src/components/ui/Card';
-import { Badge } from '../../src/components/ui/Badge';
 import { EmptyState } from '../../src/components/ui/EmptyState';
+import { BookSwipeCard } from '../../src/components/book';
 import { mockBooks } from '../../src/mock/books';
 import { getRecommendations, getWhyThisBook, getReaderPersona } from '../../src/services/ai';
 import { ReaderPersona, Book } from '../../src/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Spacing, Radius } from '../../src/constants/theme';
-import { Image } from 'expo-image';
+import { Spacing, Radius, Shadow } from '../../src/constants/theme';
+import { GestureDetector, Gesture, GestureHandlerRootView } from 'react-native-gesture-handler';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS, useReducedMotion } from 'react-native-reanimated';
 
 export default function Discover() {
   const { colors } = useTheme();
@@ -27,6 +27,12 @@ export default function Discover() {
   
   const [whyBlurbs, setWhyBlurbs] = useState<Record<string, string>>({});
   const [whyLoading, setWhyLoading] = useState(false);
+
+  const reducedMotion = useReducedMotion();
+
+  // Reanimated shared values for swipe gesture
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
 
   useEffect(() => {
     async function loadData() {
@@ -76,10 +82,12 @@ export default function Discover() {
       } finally {
         setLoading(false);
         setCurrentIndex(0);
+        translateX.value = 0;
+        translateY.value = 0;
       }
     }
     loadData();
-  }, [mode, quizResult, saved]);
+  }, [mode, quizResult, saved, translateX, translateY]);
 
   const activeBook = recommendedBooks[currentIndex];
 
@@ -101,6 +109,8 @@ export default function Discover() {
   }, [activeBook, persona, whyBlurbs]);
 
   const handleNextCard = () => {
+    translateX.value = 0;
+    translateY.value = 0;
     setCurrentIndex((prev) => prev + 1);
   };
 
@@ -117,6 +127,112 @@ export default function Discover() {
     }
     handleNextCard();
   };
+
+  // Animated swipe triggers from buttons
+  const animateSwipeLeft = () => {
+    if (reducedMotion) {
+      handleNextCard();
+      return;
+    }
+    translateX.value = withSpring(-600, { damping: 15 }, (finished) => {
+      if (finished) {
+        runOnJS(handleNextCard)();
+      }
+    });
+  };
+
+  const animateSwipeRight = (action: 'save' | 'library') => {
+    if (reducedMotion) {
+      if (action === 'save') {
+        handleSave();
+      } else {
+        handleLibrary();
+      }
+      return;
+    }
+    translateX.value = withSpring(600, { damping: 15 }, (finished) => {
+      if (finished) {
+        if (action === 'save') {
+          runOnJS(handleSave)();
+        } else {
+          runOnJS(handleLibrary)();
+        }
+      }
+    });
+  };
+
+  // Pan gesture definition
+  const panGesture = Gesture.Pan()
+    .enabled(!reducedMotion)
+    .onUpdate((event) => {
+      translateX.value = event.translationX;
+      translateY.value = event.translationY;
+    })
+    .onEnd((event) => {
+      if (event.translationX > 120) {
+        // Swipe Right triggers Save (toggle heart)
+        translateX.value = withSpring(600, { velocity: event.velocityX }, (finished) => {
+          if (finished) {
+            runOnJS(handleSave)();
+          }
+        });
+      } else if (event.translationX < -120) {
+        // Swipe Left triggers Skip
+        translateX.value = withSpring(-600, { velocity: event.velocityX }, (finished) => {
+          if (finished) {
+            runOnJS(handleNextCard)();
+          }
+        });
+      } else {
+        // Return to center
+        translateX.value = withSpring(0);
+        translateY.value = withSpring(0);
+      }
+    });
+
+  // Front card animated style
+  const animatedStyle = useAnimatedStyle(() => {
+    if (reducedMotion) {
+      return {};
+    }
+    const rotate = `${translateX.value / 15}deg`;
+    return {
+      transform: [
+        { translateX: translateX.value },
+        { translateY: translateY.value },
+        { rotate: rotate },
+      ],
+    };
+  });
+
+  // Background card animated scale/opacity style
+  const bgAnimatedStyle = useAnimatedStyle(() => {
+    if (reducedMotion) {
+      return { opacity: 0.8, transform: [{ scale: 0.95 }, { translateY: 10 }] };
+    }
+    // Calculate progress based on translation (clamped between 0 and 1)
+    const progress = Math.min(Math.abs(translateX.value) / 150, 1);
+    const scale = 0.95 + progress * 0.05;
+    const opacity = 0.8 + progress * 0.2;
+    const translateYVal = 10 - progress * 10;
+    return {
+      opacity,
+      transform: [{ scale }, { translateY: translateYVal }],
+    };
+  });
+
+  // Swipe Action overlay badge opacities
+  const saveOpacityStyle = useAnimatedStyle(() => {
+    if (reducedMotion) return { opacity: 0 };
+    const opacity = Math.min(Math.max(translateX.value / 120, 0), 1);
+    return { opacity };
+  });
+
+  const skipOpacityStyle = useAnimatedStyle(() => {
+    if (reducedMotion) return { opacity: 0 };
+    const opacity = Math.min(Math.max(-translateX.value / 120, 0), 1);
+    return { opacity };
+  });
 
   if (loading) {
     return (
@@ -154,116 +270,112 @@ export default function Discover() {
   const currentWhyBlurb = whyBlurbs[activeBook.id];
 
   return (
-    <ScreenWrapper scrollEnabled={true} style={styles.container}>
-      <View style={styles.header}>
-        <Typography variant="heading" color={colors.textPrimary}>
-          Discover
-        </Typography>
-        <View style={[styles.toggleContainer, { backgroundColor: colors.bgSecondary }]}>
-          <Button
-            variant={mode === 'comfort' ? 'primary' : 'ghost'}
-            size="sm"
-            label="Comfort"
-            onPress={() => setMode('comfort')}
-            style={styles.toggleBtn}
-          />
-          <Button
-            variant={mode === 'explorer' ? 'primary' : 'ghost'}
-            size="sm"
-            label="Explorer"
-            onPress={() => setMode('explorer')}
-            style={styles.toggleBtn}
-          />
-        </View>
-      </View>
-
-      <Card style={styles.card} variant="elevated">
-        <View style={[styles.coverContainer, { backgroundColor: colors.bgSecondary }]}>
-          {activeBook.coverUrl ? (
-            <Image
-              source={{ uri: activeBook.coverUrl }}
-              style={styles.coverImage}
-              contentFit="contain"
-              transition={200}
-            />
-          ) : (
-            <Typography variant="display">📚</Typography>
-          )}
-        </View>
-
-        <View style={styles.cardDetails}>
-          <View style={styles.titleRow}>
-            <Typography variant="title" color={colors.textPrimary} style={styles.titleText}>
-              {activeBook.title}
-            </Typography>
-            <Typography variant="subtitle" color={colors.textSecondary}>
-              by {activeBook.author}
-            </Typography>
-          </View>
-
-          <View style={styles.metaRow}>
-            <Typography variant="mono" color={colors.accent}>
-              ★ {activeBook.rating}
-            </Typography>
-            <Typography variant="caption" color={colors.textMuted}>
-              {activeBook.pageCount} pages • {activeBook.publishedYear}
-            </Typography>
-          </View>
-
-          <View style={styles.genresRow}>
-            {activeBook.genres.map(genre => (
-              <Badge key={genre} label={genre} variant="secondary" />
-            ))}
-          </View>
-
-          <Typography variant="body" color={colors.textSecondary} numberOfLines={3} style={styles.description}>
-            {activeBook.description}
+    <GestureHandlerRootView style={styles.root}>
+      <ScreenWrapper scrollEnabled={false} edges={['top', 'left', 'right']} style={styles.container}>
+        <View style={styles.header}>
+          <Typography variant="heading" color={colors.textPrimary}>
+            Discover
           </Typography>
-
-          <View style={[styles.aiSection, { backgroundColor: colors.bgPrimary, borderColor: colors.border }]}>
-            <View style={styles.aiHeader}>
-              <Typography variant="caption" color={colors.accent} style={styles.aiLabel}>
-                ✨ WHY THIS MATCHES YOUR PERSONA
+          <View style={[styles.toggleContainer, { backgroundColor: colors.bgSecondary }]}>
+            <Pressable
+              onPress={() => setMode('comfort')}
+              style={[
+                styles.toggleBtn,
+                mode === 'comfort' && [styles.toggleBtnActive, { backgroundColor: colors.accent, borderColor: colors.accent }]
+              ]}
+            >
+              <Typography
+                variant="caption"
+                color={mode === 'comfort' ? colors.accentText : colors.textSecondary}
+                style={styles.toggleLabel}
+              >
+                Comfort
               </Typography>
-            </View>
-            {whyLoading && !currentWhyBlurb ? (
-              <View style={styles.aiLoading}>
-                <ActivityIndicator size="small" color={colors.accent} />
-              </View>
-            ) : (
-              <Typography variant="caption" color={colors.textPrimary} style={styles.aiContent}>
-                {currentWhyBlurb || `Based on your reader profile, this ${activeBook.genres[0]} book is a perfect fit.`}
+            </Pressable>
+            <Pressable
+              onPress={() => setMode('explorer')}
+              style={[
+                styles.toggleBtn,
+                mode === 'explorer' && [styles.toggleBtnActive, { backgroundColor: colors.accent, borderColor: colors.accent }]
+              ]}
+            >
+              <Typography
+                variant="caption"
+                color={mode === 'explorer' ? colors.accentText : colors.textSecondary}
+                style={styles.toggleLabel}
+              >
+                Explorer
               </Typography>
-            )}
+            </Pressable>
           </View>
         </View>
-      </Card>
 
-      <View style={styles.actions}>
-        <Button
-          variant="outline"
-          label="Skip"
-          onPress={handleNextCard}
-          style={styles.actionBtn}
-        />
-        <Button
-          variant={isSaved ? 'primary' : 'outline'}
-          label={isSaved ? 'Saved' : 'Save'}
-          onPress={handleSave}
-          style={styles.actionBtn}
-        />
-        <Button
-          variant={isInLibrary ? 'secondary' : 'primary'}
-          label={isInLibrary ? 'In Library' : '+ Library'}
-          onPress={handleLibrary}
-          style={styles.actionBtn}
-        />
-      </View>
-    </ScreenWrapper>
+        <View style={styles.cardStack}>
+          {/* Background Card */}
+          {currentIndex + 1 < recommendedBooks.length && (
+            <Animated.View style={[StyleSheet.absoluteFillObject, bgAnimatedStyle]}>
+              <BookSwipeCard
+                book={recommendedBooks[currentIndex + 1]}
+                whyBlurb={whyBlurbs[recommendedBooks[currentIndex + 1].id]}
+                whyLoading={false}
+              />
+            </Animated.View>
+          )}
+
+          {/* Front Card */}
+          <GestureDetector gesture={panGesture}>
+            <Animated.View style={[styles.frontCard, animatedStyle]}>
+              <BookSwipeCard
+                book={activeBook}
+                whyBlurb={currentWhyBlurb}
+                whyLoading={whyLoading}
+              />
+
+              {/* Swipe Action Overlay Badges */}
+              <Animated.View style={[styles.badgeOverlay, styles.saveBadge, saveOpacityStyle, { borderColor: colors.success }]}>
+                <Typography variant="heading" color={colors.success} style={styles.badgeText}>
+                  SAVE
+                </Typography>
+              </Animated.View>
+
+              <Animated.View style={[styles.badgeOverlay, styles.skipBadge, skipOpacityStyle, { borderColor: colors.error }]}>
+                <Typography variant="heading" color={colors.error} style={styles.badgeText}>
+                  SKIP
+                </Typography>
+              </Animated.View>
+            </Animated.View>
+          </GestureDetector>
+        </View>
+
+        <View style={styles.actions}>
+          <Button
+            variant="outline"
+            label="Skip"
+            onPress={animateSwipeLeft}
+            style={styles.actionBtn}
+          />
+          <Button
+            variant={isSaved ? 'primary' : 'outline'}
+            label={isSaved ? 'Saved' : 'Save'}
+            onPress={() => animateSwipeRight('save')}
+            style={styles.actionBtn}
+          />
+          <Button
+            variant={isInLibrary ? 'secondary' : 'primary'}
+            label={isInLibrary ? 'In Library' : '+ Library'}
+            onPress={() => animateSwipeRight('library')}
+            style={styles.actionBtn}
+          />
+        </View>
+      </ScreenWrapper>
+    </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     paddingHorizontal: Spacing['6'],
@@ -292,81 +404,64 @@ const styles = StyleSheet.create({
   toggleContainer: {
     flexDirection: 'row',
     borderRadius: Radius.full,
-    padding: Spacing['1'],
+    padding: 2,
+    alignItems: 'center',
   },
   toggleBtn: {
+    paddingHorizontal: Spacing['4'],
+    paddingVertical: Spacing['2'],
     borderRadius: Radius.full,
-  },
-  card: {
-    flex: 1,
-    marginBottom: Spacing['5'],
-    padding: 0,
-  },
-  coverContainer: {
-    height: 240,
+    alignItems: 'center',
     justifyContent: 'center',
-    alignItems: 'center',
-    borderTopLeftRadius: Radius.md,
-    borderTopRightRadius: Radius.md,
-    overflow: 'hidden',
-  },
-  coverImage: {
-    width: '100%',
-    height: '100%',
-  },
-  cardDetails: {
-    padding: Spacing['5'],
-  },
-  titleRow: {
-    marginBottom: Spacing['1'],
-  },
-  titleText: {
-    fontWeight: 'bold',
-  },
-  metaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing['3'],
-    marginBottom: Spacing['3'],
-  },
-  genresRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing['2'],
-    marginBottom: Spacing['3'],
-  },
-  description: {
-    marginBottom: Spacing['4'],
-    lineHeight: 20,
-  },
-  aiSection: {
     borderWidth: 1,
-    borderRadius: Radius.md,
-    padding: Spacing['3'],
-    marginTop: Spacing['2'],
+    borderColor: 'transparent',
   },
-  aiHeader: {
-    flexDirection: 'row',
-    marginBottom: Spacing['1'],
+  toggleBtnActive: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 1.5,
+    elevation: 2,
   },
-  aiLabel: {
-    fontWeight: '700',
-    letterSpacing: 0.5,
+  toggleLabel: {
+    fontWeight: '600',
   },
-  aiLoading: {
-    height: 30,
-    justifyContent: 'center',
-    alignItems: 'flex-start',
+  cardStack: {
+    flex: 1,
+    position: 'relative',
+    marginBottom: Spacing['5'],
   },
-  aiContent: {
-    fontStyle: 'italic',
-    lineHeight: 18,
+  frontCard: {
+    flex: 1,
+    position: 'relative',
+  },
+  badgeOverlay: {
+    position: 'absolute',
+    top: 40,
+    borderWidth: 4,
+    borderRadius: Radius.sm,
+    paddingHorizontal: Spacing['4'],
+    paddingVertical: Spacing['2'],
+    zIndex: 99,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+  },
+  saveBadge: {
+    left: 40,
+    transform: [{ rotate: '-15deg' }],
+  },
+  skipBadge: {
+    right: 40,
+    transform: [{ rotate: '15deg' }],
+  },
+  badgeText: {
+    fontWeight: 'bold',
+    letterSpacing: 2,
   },
   actions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: Spacing['3'],
-    paddingBottom: Spacing['6'],
+    paddingBottom: Spacing['2'],
   },
   actionBtn: {
     flex: 1,

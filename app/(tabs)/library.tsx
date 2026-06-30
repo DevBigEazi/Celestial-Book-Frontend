@@ -6,10 +6,9 @@ import { useAuth } from '../../src/hooks/useAuth';
 import { Typography } from '../../src/components/ui/Typography';
 import { ScreenWrapper } from '../../src/components/layout/ScreenWrapper';
 import { EmptyState } from '../../src/components/ui/EmptyState';
-import { Card } from '../../src/components/ui/Card';
+import { BookCard } from '../../src/components/book';
 import { mockBooks } from '../../src/mock/books';
-import { Spacing, Radius, Shadow } from '../../src/constants/theme';
-import { Image } from 'expo-image';
+import { Spacing } from '../../src/constants/theme';
 
 type LibraryTab = 'reading' | 'saved' | 'purchased';
 
@@ -102,37 +101,10 @@ export default function Library() {
           numColumns={2}
           columnWrapperStyle={styles.columnWrapper}
           renderItem={({ item }) => (
-            <Card
+            <BookCard
+              book={item}
               onPress={() => router.push(`/(stack)/book/${item.id}`)}
-              style={styles.bookCard}
-              variant="outlined"
-            >
-              <View style={[styles.coverContainer, { backgroundColor: colors.bgSecondary }]}>
-                {item.coverUrl ? (
-                  <Image
-                    source={{ uri: item.coverUrl }}
-                    style={styles.coverImage}
-                    contentFit="contain"
-                    transition={200}
-                  />
-                ) : (
-                  <Typography variant="title">📖</Typography>
-                )}
-              </View>
-              <View style={styles.details}>
-                <Typography variant="label" color={colors.textPrimary} numberOfLines={1} style={styles.titleText}>
-                  {item.title}
-                </Typography>
-                <Typography variant="caption" color={colors.textSecondary} numberOfLines={1}>
-                  {item.author}
-                </Typography>
-                <View style={[styles.badge, { backgroundColor: colors.bgSecondary }]}>
-                  <Typography variant="caption" color={colors.textAccent} style={styles.badgeText}>
-                    ★ {item.rating}
-                  </Typography>
-                </View>
-              </View>
-            </Card>
+            />
           )}
           ListEmptyComponent={
             <View style={styles.emptyState}>
@@ -173,40 +145,6 @@ const styles = StyleSheet.create({
   columnWrapper: {
     justifyContent: 'space-between',
     marginBottom: Spacing['4'],
-  },
-  bookCard: {
-    width: '48%',
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    overflow: 'hidden',
-    ...Shadow.sm,
-  },
-  coverContainer: {
-    height: 120,
-    justifyContent: 'center',
-    alignItems: 'center',
-    overflow: 'hidden',
-  },
-  coverImage: {
-    width: '100%',
-    height: '100%',
-  },
-  details: {
-    padding: Spacing['3'],
-  },
-  titleText: {
-    fontWeight: '600',
-  },
-  badge: {
-    alignSelf: 'flex-start',
-    marginTop: Spacing['2'],
-    paddingHorizontal: Spacing['2'],
-    paddingVertical: Spacing['1'],
-    borderRadius: Radius.sm,
-  },
-  badgeText: {
-    fontWeight: 'bold',
-    fontFamily: 'GeistMono_500Medium',
   },
   emptyState: {
     flex: 1,

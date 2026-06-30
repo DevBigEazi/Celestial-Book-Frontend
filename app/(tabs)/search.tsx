@@ -6,6 +6,7 @@ import { Typography } from '../../src/components/ui/Typography';
 import { Input } from '../../src/components/ui/Input';
 import { ScreenWrapper } from '../../src/components/layout/ScreenWrapper';
 import { EmptyState } from '../../src/components/ui/EmptyState';
+import { BookCard } from '../../src/components/book';
 import { mockBooks } from '../../src/mock/books';
 import { mockCommunities } from '../../src/mock/communities';
 import { mockClubs } from '../../src/mock/clubs';
@@ -80,21 +81,13 @@ export default function Search() {
           <FlatList
             data={filteredBooks}
             keyExtractor={(item) => item.id}
+            numColumns={2}
+            columnWrapperStyle={styles.columnWrapper}
             renderItem={({ item }) => (
-              <Pressable
+              <BookCard
+                book={item}
                 onPress={() => router.push(`/(stack)/book/${item.id}`)}
-                style={({ pressed }) => [
-                  styles.resultItem,
-                  { borderBottomColor: colors.divider, opacity: pressed ? 0.7 : 1 }
-                ]}
-              >
-                <Typography variant="body" color={colors.textPrimary}>
-                  {item.title}
-                </Typography>
-                <Typography variant="caption" color={colors.textSecondary}>
-                  by {item.author} • ★ {item.rating}
-                </Typography>
-              </Pressable>
+              />
             )}
             ListEmptyComponent={
               <EmptyState
@@ -204,5 +197,9 @@ const styles = StyleSheet.create({
   resultItem: {
     paddingVertical: Spacing['4'],
     borderBottomWidth: 1,
+  },
+  columnWrapper: {
+    justifyContent: 'space-between',
+    marginBottom: Spacing['4'],
   },
 });
