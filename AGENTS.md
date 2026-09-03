@@ -2,6 +2,8 @@
 
 ## 1. Primary Rule & Source of Truth
 - **Single Source of Truth**: All architectural decisions, screens, mock data, and visual requirements are detailed in [`agent.md`](./agent.md) and the project PRD ([`Celestial_Book_PRD.pdf`](./Celestial_Book_PRD.pdf)). Do not omit anything from the PRD.
+- **Strict PRD Scope**: Any feature that is not in the PRD should be removed or should not be added. Do not build or keep extraneous features, screens, or non-PRD tabs.
+- **UI Design Philosophy**: Retain the current sleek, polished design system and layouts of the codebase (do NOT downgrade to the PRD's wireframe visuals). Simply recolor with the PRD palette (Celestial Gold & Indigo, Parchment, 8 Skies) and adjust the features to suit everything in the PRD.
 - **Product Flow**: DISCOVER → PERSONALIZE → READ → CONNECT.
 
 ## 2. Expo SDK 57 Constraints
