@@ -43,5 +43,9 @@ app-example
 /ios
 /android
 
-#agents
+# agents & local documentation
 agent.md
+ROADMAP.md
+extracted_prd.txt
+scratch/
+Celestial_Book_PRD.pdf

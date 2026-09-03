@@ -1,35 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
   <defs>
-    <!-- Celestial Midnight Indigo Background Gradient -->
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#070B14" />
-      <stop offset="50%" stop-color="#0B1329" />
-      <stop offset="100%" stop-color="#0F172A" />
-    </linearGradient>
-    
     <!-- Celestial Gold Ambient Glow -->
     <radialGradient id="goldGlow" cx="50%" cy="38%" r="52%">
-      <stop offset="0%" stop-color="#E5C158" stop-opacity="0.32" />
-      <stop offset="45%" stop-color="#D4AF37" stop-opacity="0.12" />
-      <stop offset="100%" stop-color="#070B14" stop-opacity="0" />
-    </radialGradient>
-
-    <!-- Subtle Starlight Shimmer -->
-    <radialGradient id="starShimmer" cx="50%" cy="20%" r="30%">
-      <stop offset="0%" stop-color="#FFFDF7" stop-opacity="0.8" />
-      <stop offset="60%" stop-color="#E5C158" stop-opacity="0.3" />
-      <stop offset="100%" stop-color="#E5C158" stop-opacity="0" />
+      <stop offset="0%" stop-color="#E5C158" stop-opacity="0.35" />
+      <stop offset="50%" stop-color="#D4AF37" stop-opacity="0.12" />
+      <stop offset="100%" stop-color="#D4AF37" stop-opacity="0" />
     </radialGradient>
   </defs>
-
-  <!-- Background Layer -->
-  <rect width="1024" height="1024" rx="224" fill="url(#bgGrad)" />
 
   <!-- Ambient Celestial Glow -->
   <circle cx="512" cy="420" r="380" fill="url(#goldGlow)" />
 
   <!-- Constellation Lines (Celestial Gold) -->
-  <g stroke="#E5C158" stroke-width="6" opacity="0.85" stroke-linecap="round">
+  <g stroke="#E5C158" stroke-width="6" opacity="0.9" stroke-linecap="round">
     <line x1="512" y1="200" x2="362" y2="300" />
     <line x1="362" y1="300" x2="420" y2="420" />
     <line x1="512" y1="200" x2="662" y2="300" />
@@ -41,7 +24,7 @@
     <line x1="662" y1="300" x2="764" y2="240" />
   </g>
 
-  <!-- Constellation Stars (Celestial Gold & White Cores) -->
+  <!-- Constellation Stars -->
   <g>
     <!-- Star 1: Top Center (Polaris motif) -->
     <circle cx="512" cy="200" r="24" fill="#FFFDF7" />
@@ -78,10 +61,10 @@
   <path d="M 512 140 L 512 260 M 452 200 L 572 200" stroke="#FFFDF7" stroke-width="7" stroke-linecap="round" opacity="0.95" />
   <path d="M 512 165 L 512 235 M 477 200 L 547 200" stroke="#E5C158" stroke-width="4" stroke-linecap="round" opacity="0.8" />
 
-  <!-- Open Book Symbol (Gold Accents, Starlight Pages, Deep Indigo Covers) -->
+  <!-- Open Book Symbol -->
   <g transform="translate(0, 100)">
     <!-- Book Shadow Base -->
-    <path d="M 512 600 C 400 580 250 630 180 670 L 180 470 C 250 430 400 380 512 400 C 624 380 774 430 844 470 L 844 670 C 774 630 624 580 512 600 Z" fill="#04060B" opacity="0.55" />
+    <path d="M 512 600 C 400 580 250 630 180 670 L 180 470 C 250 430 400 380 512 400 C 624 380 774 430 844 470 L 844 670 C 774 630 624 580 512 600 Z" fill="#04060B" opacity="0.3" />
 
     <!-- Left Page Outer Cover (Deep Celestial Indigo) -->
     <path d="M 512 590 C 390 560 230 610 160 650 L 160 450 C 230 410 390 360 512 390 Z" fill="#172554" />
@@ -101,7 +84,7 @@
     <!-- Right Page Paper (Warm Starlight Ivory / Parchment) -->
     <path d="M 516 575 C 636 545 782 590 844 630 L 844 430 C 782 390 636 345 516 375 Z" fill="#FAF8F5" />
 
-    <!-- Pages Layer Details (Suggesting text or celestial depth) -->
+    <!-- Pages Layer Details -->
     <path d="M 220 460 C 280 430 380 400 470 415" stroke="#E2D9C8" stroke-width="6" stroke-linecap="round" fill="none" />
     <path d="M 220 500 C 280 470 380 440 470 455" stroke="#E2D9C8" stroke-width="6" stroke-linecap="round" fill="none" />
     <path d="M 220 540 C 280 510 380 480 470 495" stroke="#E2D9C8" stroke-width="6" stroke-linecap="round" fill="none" />

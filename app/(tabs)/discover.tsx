@@ -11,7 +11,7 @@ import { mockBooks } from '../../src/mock/books';
 import { getRecommendations, getWhyThisBook, getReaderPersona } from '../../src/services/ai';
 import { ReaderPersona, Book } from '../../src/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Spacing, Radius, Shadow } from '../../src/constants/theme';
+import { Spacing, Radius } from '../../src/constants/theme';
 import { GestureDetector, Gesture, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS, useReducedMotion } from 'react-native-reanimated';
 
@@ -313,7 +313,7 @@ export default function Discover() {
         <View style={styles.cardStack}>
           {/* Background Card */}
           {currentIndex + 1 < recommendedBooks.length && (
-            <Animated.View style={[StyleSheet.absoluteFillObject, bgAnimatedStyle]}>
+            <Animated.View style={[StyleSheet.absoluteFill, bgAnimatedStyle]}>
               <BookSwipeCard
                 book={recommendedBooks[currentIndex + 1]}
                 whyBlurb={whyBlurbs[recommendedBooks[currentIndex + 1].id]}
