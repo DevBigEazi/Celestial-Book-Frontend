@@ -215,6 +215,7 @@ Generate a creative, catchy reader persona name (e.g., "The Cozy Escapist", "The
       typeof parsed.description === 'string'
     ) {
       return {
+        tagline: typeof parsed.tagline === 'string' ? parsed.tagline : `${parsed.name} · Atmospheric`,
         name: parsed.name,
         description: parsed.description
       };
@@ -243,7 +244,9 @@ Generate a creative, catchy reader persona name (e.g., "The Cozy Escapist", "The
       description = 'You love solving puzzles and keeping your heart racing. Twisty plots, dark secrets, and high suspense are what draw you into a book.';
     }
 
-    return { name, description };
+    const trope = quizResult.tropes?.[0] || 'Atmospheric';
+    const tagline = `Romantic · ${trope} · Slow Burn`;
+    return { tagline, name, description };
   }
 }
 

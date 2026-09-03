@@ -1,115 +1,141 @@
 import { Post } from '../types/community';
+import { CirclePost } from '../types/comment';
 import { mockUsers } from './users';
 
 export const mockPosts: Post[] = [
   {
     id: 'post-001',
-    communityId: 'community-001', // Fantasy Fellowship
-    author: mockUsers[0], // Jane Doe
-    bookId: 'book-001', // The Hobbit
-    content: 'Just finished re-reading The Hobbit! J.R.R. Tolkien has this magical way of describing the Shire that always makes me feel at home. Bilbos journey is truly timeless. Who else loves the riddles in the dark scene?',
-    likes: 34,
-    commentCount: 2,
+    communityId: 'community-001',
+    author: mockUsers[0],
+    bookId: 'book-001',
+    content:
+      'The sheer atmospheric wonder of the Night Circus took my breath away. Marco and Celia communicating solely through magical tents... the yearning is unbearable!',
+    likes: 84,
+    commentCount: 12,
     createdAt: '2026-06-25T12:00:00Z',
     isLiked: true,
   },
   {
     id: 'post-002',
-    communityId: 'community-002', // Sci-Fi Explorers
-    author: mockUsers[1], // John Smith
-    bookId: 'book-002', // Dune
-    content: 'Dunes ecological themes are so fascinating. Frank Herbert managed to predict so many of our current conversations about resource scarcity and climate. Re-reading it before the next movie comes out!',
-    likes: 45,
-    commentCount: 1,
+    communityId: 'community-002',
+    author: mockUsers[1],
+    bookId: 'book-002',
+    content:
+      'Piranesi is the kind of book that rewrites the quiet corners of your mind. "The Beauty of the House is immeasurable; its Kindness infinite." Still crying over the tides.',
+    likes: 67,
+    commentCount: 8,
     createdAt: '2026-06-26T08:30:00Z',
     isLiked: false,
   },
   {
     id: 'post-003',
-    communityId: 'community-001', // Fantasy Fellowship
-    author: mockUsers[3], // Bob Brown
-    bookId: 'book-010', // The Alchemist
-    content: 'The concept of a "Personal Legend" in The Alchemist always resonates with me. It is a quick read, but the philosophical questions it raises stick with you for months.',
-    likes: 28,
-    commentCount: 1,
+    communityId: 'community-001',
+    author: mockUsers[3],
+    bookId: 'book-003',
+    content:
+      'Babel broke me in ways I was not prepared for. The silver-working metaphors for translation and exploitation are chillingly brilliant. Chapter 24 ruined my sleep.',
+    likes: 92,
+    commentCount: 15,
     createdAt: '2026-06-27T15:10:00Z',
-    isLiked: false,
+    isLiked: true,
   },
   {
     id: 'post-004',
-    communityId: 'community-004', // Biography Buffs
-    author: mockUsers[2], // Alice Johnson
-    bookId: 'book-008', // Educated
-    content: 'Educated by Tara Westover is a masterpiece of resilience. The way she details her transition from a survivalist compound to Cambridge is breathtaking. Highly recommend if you want to understand the true power of learning.',
-    likes: 52,
-    commentCount: 1,
+    communityId: 'community-004',
+    author: mockUsers[2],
+    bookId: 'book-006',
+    content:
+      'The Secret History rereads get darker every autumn. Julian Morrow’s influence on the Greek students is pure charismatic manipulation. Who was your favorite moral disaster?',
+    likes: 58,
+    commentCount: 7,
     createdAt: '2026-06-28T10:00:00Z',
     isLiked: true,
   },
+];
+
+export const mockCirclePosts: CirclePost[] = [
   {
-    id: 'post-005',
-    communityId: 'community-002', // Sci-Fi Explorers
-    author: mockUsers[0], // Jane Doe
-    bookId: 'book-003', // 1984
-    content: 'Reading 1984 in this day and age hits completely differently. The concept of doublethink is so relevant. Orwell was truly ahead of his time.',
-    likes: 67,
-    commentCount: 0,
-    createdAt: '2026-06-28T19:30:00Z',
-    isLiked: false,
-  },
-  {
-    id: 'post-006',
-    communityId: 'community-003', // Mystery Minders
-    author: mockUsers[1], // John Smith
-    bookId: 'book-006', // To Kill a Mockingbird
-    content: 'Atticus Finch is probably one of the best-written characters in American literature. The courtroom scene is so tense and powerful, even when you know how it ends.',
-    likes: 39,
-    commentCount: 0,
-    createdAt: '2026-06-29T07:15:00Z',
-    isLiked: false,
-  },
-  {
-    id: 'post-007',
-    communityId: 'community-004', // Biography Buffs
-    author: mockUsers[2], // Alice Johnson
-    bookId: 'book-009', // Steve Jobs
-    content: 'Walter Isaacsons biography of Steve Jobs is incredibly balanced. It doesn\'t shy away from Jobs\' difficult personality while highlighting his absolute genius in design and marketing.',
-    likes: 23,
-    commentCount: 0,
-    createdAt: '2026-06-29T08:00:00Z',
-    isLiked: false,
-  },
-  {
-    id: 'post-008',
-    communityId: 'community-001', // Fantasy Fellowship
-    author: mockUsers[4], // Clara Oswald
-    bookId: null,
-    content: 'Hey Fellowship! What epic fantasy series should I start next? Just finished the main Tolkien books and need something with a similar scale and complex mythology. Any suggestions?',
-    likes: 18,
-    commentCount: 0,
-    createdAt: '2026-06-29T08:15:00Z',
-    isLiked: false,
-  },
-  {
-    id: 'post-009',
-    communityId: 'community-002', // Sci-Fi Explorers
-    author: mockUsers[4], // Clara Oswald
-    bookId: null,
-    content: 'Looking for sci-fi books that explore genetic engineering or AI ethics. Prefer novels that focus more on character relationships and philosophical dilemmas than hard science.',
-    likes: 12,
-    commentCount: 0,
-    createdAt: '2026-06-29T08:30:00Z',
-    isLiked: false,
-  },
-  {
-    id: 'post-010',
-    communityId: 'community-003', // Mystery Minders
-    author: mockUsers[3], // Bob Brown
-    bookId: 'book-005', // Pride and Prejudice
-    content: 'Ok, so Pride and Prejudice is not a mystery, but Darcy hiding his feelings and the misunderstandings feel like a romantic detective case where Elizabeth is trying to piece together the truth! Anyone else see it that way?',
-    likes: 31,
-    commentCount: 0,
-    createdAt: '2026-06-29T08:45:00Z',
+    id: 'circle-post-001',
+    clubId: 'club-001', // Midnight Romantics
+    author: mockUsers[0], // Jane
+    emotion: 'yearning',
+    bookTitle: 'The Night Circus',
+    chapterOrPageRef: 'Chapter: The Wishing Tree',
+    content:
+      'The moment Celia walks through the candlelit ice garden and realizes Marco built every frozen blossom for her... I could not breathe. That is the peak of slow burn.',
+    likes: 42,
+    commentCount: 9,
+    createdAt: '2026-07-02T20:15:00Z',
     isLiked: true,
+  },
+  {
+    id: 'circle-post-002',
+    clubId: 'club-001', // Midnight Romantics
+    author: mockUsers[2], // Alice
+    emotion: 'surprised',
+    bookTitle: 'The Night Circus',
+    chapterOrPageRef: 'Part IV: Turning Points',
+    content:
+      'Did anyone else suspect Hector’s true intentions before Bailey stumbled into the tent of clocks? The foreshadowing with the black and white scarves was immaculate.',
+    likes: 29,
+    commentCount: 6,
+    createdAt: '2026-07-03T14:40:00Z',
+    isLiked: false,
+  },
+  {
+    id: 'circle-post-003',
+    clubId: 'club-002', // Ink & Oak
+    author: mockUsers[1], // John
+    emotion: 'invested',
+    bookTitle: 'Babel',
+    chapterOrPageRef: 'Act III: The Tower',
+    content:
+      'Robin Swift’s character arc is a masterclass in moral gravity. Watching him choose his principles over comfort, knowing the catastrophic cost, left me shattered.',
+    likes: 64,
+    commentCount: 14,
+    createdAt: '2026-07-04T09:10:00Z',
+    isLiked: true,
+  },
+  {
+    id: 'circle-post-004',
+    clubId: 'club-002', // Ink & Oak
+    author: mockUsers[3], // Bob
+    emotion: 'angry',
+    bookTitle: 'Babel',
+    chapterOrPageRef: 'Chapter 28',
+    content:
+      'Professor Lovell might be one of the most despicably cold parental figures in recent literature. The betrayal felt like a physical blow.',
+    likes: 51,
+    commentCount: 11,
+    createdAt: '2026-07-04T18:25:00Z',
+    isLiked: false,
+  },
+  {
+    id: 'circle-post-005',
+    clubId: 'club-003', // Gothic Tides
+    author: mockUsers[4], // Clara
+    emotion: 'happy',
+    bookTitle: 'Piranesi',
+    chapterOrPageRef: 'Halls of the North',
+    content:
+      'Piranesi taking tender care of the albatross and collecting dried seaweed for the birds fills me with such quiet peace. The purest soul in modern fiction.',
+    likes: 38,
+    commentCount: 5,
+    createdAt: '2026-07-05T11:00:00Z',
+    isLiked: true,
+  },
+  {
+    id: 'circle-post-006',
+    clubId: 'club-003', // Gothic Tides
+    author: mockUsers[0], // Jane
+    emotion: 'sad',
+    bookTitle: 'Piranesi',
+    chapterOrPageRef: 'The Sixteenth Person',
+    content:
+      'The journals slowly revealing his past identity while he tries so desperately to protect his beloved House... my heart ached so deeply.',
+    likes: 47,
+    commentCount: 8,
+    createdAt: '2026-07-05T22:30:00Z',
+    isLiked: false,
   },
 ];

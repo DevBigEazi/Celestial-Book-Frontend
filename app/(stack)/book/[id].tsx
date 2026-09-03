@@ -76,7 +76,11 @@ export default function BookDetail() {
         } else {
           // Fetch reader persona from cache
           const personaStr = await AsyncStorage.getItem('@cb/reader_persona');
-          let persona: ReaderPersona = { name: 'The Cozy Reader', description: 'Enjoys comfortable, warm stories.' };
+          let persona: ReaderPersona = {
+            tagline: 'Cozy · Atmospheric · Comfort',
+            name: 'The Cozy Reader',
+            description: 'Enjoys comfortable, warm stories.',
+          };
           if (personaStr) {
             persona = JSON.parse(personaStr);
           }
