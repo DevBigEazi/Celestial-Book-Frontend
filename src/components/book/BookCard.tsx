@@ -19,7 +19,7 @@ export function BookCard({ book, onPress, style }: BookCardProps) {
   return (
     <Card
       onPress={onPress}
-      style={[styles.bookCard, style]}
+      style={[styles.bookCard, { backgroundColor: colors.bgCard, borderColor: colors.border }, style]}
       variant="outlined"
     >
       <View style={[styles.coverContainer, { backgroundColor: colors.bgSecondary }]}>
@@ -27,24 +27,46 @@ export function BookCard({ book, onPress, style }: BookCardProps) {
           <Image
             source={{ uri: book.coverUrl }}
             style={styles.coverImage}
-            contentFit="contain"
+            contentFit="cover"
             transition={200}
           />
         ) : (
-          <Typography variant="title">📖</Typography>
+          <View style={styles.fallbackCover}>
+            <Typography variant="title">📖</Typography>
+          </View>
         )}
       </View>
+
       <View style={styles.details}>
-        <Typography variant="label" color={colors.textPrimary} numberOfLines={1} style={styles.titleText}>
+        <Typography
+          variant="label"
+          color={colors.textPrimary}
+          numberOfLines={1}
+          style={styles.titleText}
+        >
           {book.title}
         </Typography>
-        <Typography variant="caption" color={colors.textSecondary} numberOfLines={1}>
+
+        <Typography
+          variant="caption"
+          color={colors.textSecondary}
+          numberOfLines={1}
+          style={styles.authorText}
+        >
           {book.author}
         </Typography>
-        <View style={[styles.badge, { backgroundColor: colors.bgSecondary }]}>
-          <Typography variant="caption" color={colors.textAccent} style={styles.badgeText}>
-            ★ {book.rating}
-          </Typography>
+
+        <View style={styles.bottomMeta}>
+          <View style={[styles.badge, { backgroundColor: colors.accentMuted }]}>
+            <Typography variant="caption" color={colors.accent} style={styles.badgeText}>
+              ★ {book.rating}
+            </Typography>
+          </View>
+          {book.genres?.[0] && (
+            <Typography variant="caption" color={colors.textMuted} numberOfLines={1} style={styles.genreText}>
+              {book.genres[0]}
+            </Typography>
+          )}
         </View>
       </View>
     </Card>
@@ -53,38 +75,55 @@ export function BookCard({ book, onPress, style }: BookCardProps) {
 
 const styles = StyleSheet.create({
   bookCard: {
-    width: '48%',
-    borderRadius: Radius.md,
+    width: '100%',
+    borderRadius: Radius.lg,
     borderWidth: 1,
     overflow: 'hidden',
     padding: 0,
     ...Shadow.sm,
   },
   coverContainer: {
-    height: 120,
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: '100%',
+    height: 195,
     overflow: 'hidden',
   },
   coverImage: {
     width: '100%',
     height: '100%',
   },
+  fallbackCover: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   details: {
     padding: Spacing['3'],
   },
   titleText: {
     fontWeight: '600',
+    fontSize: 13,
+  },
+  authorText: {
+    marginTop: 2,
+    fontSize: 11,
+  },
+  bottomMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: Spacing['2'],
   },
   badge: {
-    alignSelf: 'flex-start',
-    marginTop: Spacing['2'],
     paddingHorizontal: Spacing['2'],
-    paddingVertical: Spacing['1'],
+    paddingVertical: 2,
     borderRadius: Radius.sm,
   },
   badgeText: {
-    fontWeight: 'bold',
-    fontFamily: 'GeistMono_500Medium',
+    fontWeight: '700',
+    fontSize: 10,
+  },
+  genreText: {
+    fontSize: 10,
+    maxWidth: 70,
   },
 });
