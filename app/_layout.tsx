@@ -55,9 +55,9 @@ function NavigationStack({ fontsLoaded }: NavigationStackProps) {
         router.replace('/(auth)/onboarding');
       }
     } else {
-      // User is logged in and onboarded: redirect to discover if in auth group or at root index
+      // User is logged in and onboarded: redirect to home if in auth group or at root index
       if (inAuthGroup || segments.length === 0 || segments[0] === 'index') {
-        router.replace('/(tabs)/discover');
+        router.replace('/(tabs)/home');
       }
     }
   }, [user, onboarded, authLoading, fontsLoaded, segments, router]);
@@ -72,6 +72,7 @@ function NavigationStack({ fontsLoaded }: NavigationStackProps) {
         <Stack.Screen name="index" />
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="(stack)/swipe" options={{ presentation: 'card' }} />
         <Stack.Screen name="(stack)/book/[id]" options={{ presentation: 'card' }} />
         <Stack.Screen name="(stack)/club/[id]" options={{ presentation: 'card' }} />
         <Stack.Screen name="(stack)/community/[id]" options={{ presentation: 'card' }} />

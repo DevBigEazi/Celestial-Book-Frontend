@@ -6,50 +6,83 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../src/context/ThemeContext';
 import { useResponsive } from '../../src/hooks/useResponsive';
 import { Typography } from '../../src/components/ui/Typography';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring, useReducedMotion } from 'react-native-reanimated';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  useReducedMotion,
+} from 'react-native-reanimated';
 import { Image } from 'expo-image';
 
-interface CustomTabBarProps {
-  state: any;
-  descriptors: any;
-  navigation: any;
-  colors: any;
+type TabsTabBarProps = Parameters<NonNullable<React.ComponentProps<typeof Tabs>['tabBar']>>[0];
+
+interface CustomTabBarProps extends TabsTabBarProps {
   isDesktop: boolean;
 }
 
-function CustomTabBar({ state, descriptors, navigation, colors, isDesktop }: CustomTabBarProps) {
+function CustomTabBar({
+  state,
+  descriptors,
+  navigation,
+  isDesktop,
+}: CustomTabBarProps) {
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
   const { width } = useResponsive();
   const reducedMotion = useReducedMotion();
 
-  // Animations shared values
-  const tabWidth = isDesktop ? 0 : width / state.routes.length;
-  const bottomTranslateX = useSharedValue(state.index * tabWidth);
-  const sidebarTranslateY = useSharedValue(state.index * 56); // 48px height + 8px gap
+  // Only the 4 defined tabs (Home, TBR, Clubs, Settings)
+  const tabRoutes = state.routes.filter(
+    (route) => route.name === 'home' || route.name === 'tbr' || route.name === 'club' || route.name === 'settings'
+  );
+
+  const tabWidth = isDesktop ? 0 : width / tabRoutes.length;
+  const activeTabRoute = state.routes[state.index];
+  const activeIndex = Math.max(
+    0,
+    tabRoutes.findIndex((r) => r.key === activeTabRoute?.key)
+  );
+
+  const bottomTranslateX = useSharedValue(activeIndex * tabWidth);
+  const sidebarTranslateY = useSharedValue(activeIndex * 56);
 
   useEffect(() => {
     if (isDesktop) {
-      sidebarTranslateY.value = reducedMotion 
-        ? state.index * 56 
-        : withSpring(state.index * 56, { damping: 15, stiffness: 120 });
+      sidebarTranslateY.value = reducedMotion
+        ? activeIndex * 56
+        : withSpring(activeIndex * 56, { damping: 15, stiffness: 120 });
     } else {
-      bottomTranslateX.value = reducedMotion 
-        ? state.index * tabWidth 
-        : withSpring(state.index * tabWidth, { damping: 15, stiffness: 120 });
+      bottomTranslateX.value = reducedMotion
+        ? activeIndex * tabWidth
+        : withSpring(activeIndex * tabWidth, { damping: 15, stiffness: 120 });
     }
-  }, [state.index, tabWidth, isDesktop, reducedMotion, bottomTranslateX, sidebarTranslateY]);
+  }, [activeIndex, tabWidth, isDesktop, reducedMotion, bottomTranslateX, sidebarTranslateY]);
 
-  const animatedBottomStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateX: bottomTranslateX.value }],
-    };
-  });
+  const animatedBottomStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: bottomTranslateX.value }],
+  }));
 
-  const animatedSidebarStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateY: sidebarTranslateY.value }],
-    };
-  });
+  const animatedSidebarStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: sidebarTranslateY.value }],
+  }));
+
+  const getIconName = (
+    routeName: string,
+    isFocused: boolean
+  ): keyof typeof Ionicons.glyphMap => {
+    switch (routeName) {
+      case 'home':
+        return isFocused ? 'compass' : 'compass-outline';
+      case 'tbr':
+        return isFocused ? 'bookmark' : 'bookmark-outline';
+      case 'club':
+        return isFocused ? 'people' : 'people-outline';
+      case 'settings':
+        return isFocused ? 'settings' : 'settings-outline';
+      default:
+        return isFocused ? 'compass' : 'compass-outline';
+    }
+  };
 
   if (!isDesktop) {
     return (
@@ -76,10 +109,13 @@ function CustomTabBar({ state, descriptors, navigation, colors, isDesktop }: Cus
           ]}
         />
 
-        {state.routes.map((route: any, index: number) => {
+        {tabRoutes.map((route, index) => {
           const { options } = descriptors[route.key];
-          const label = options.title !== undefined ? options.title : route.name;
-          const isFocused = state.index === index;
+          const label =
+            options.title !== undefined
+              ? options.title
+              : route.name.toUpperCase();
+          const isFocused = index === activeIndex;
 
           const onPress = () => {
             const event = navigation.emit({
@@ -94,17 +130,23 @@ function CustomTabBar({ state, descriptors, navigation, colors, isDesktop }: Cus
           };
 
           const color = isFocused ? colors.tabActive : colors.tabInactive;
-          let iconName: keyof typeof Ionicons.glyphMap = 'compass-outline';
-          if (route.name === 'discover') iconName = isFocused ? 'compass' : 'compass-outline';
-          else if (route.name === 'search') iconName = isFocused ? 'search' : 'search-outline';
-          else if (route.name === 'circle') iconName = isFocused ? 'people' : 'people-outline';
-          else if (route.name === 'library') iconName = isFocused ? 'library' : 'library-outline';
-          else if (route.name === 'profile') iconName = isFocused ? 'person-circle' : 'person-circle-outline';
+          const iconName = getIconName(route.name, isFocused);
 
           return (
-            <Pressable key={route.key} onPress={onPress} style={styles.bottomTabButton}>
+            <Pressable
+              key={route.key}
+              onPress={onPress}
+              style={styles.bottomTabButton}
+            >
               <Ionicons name={iconName} size={22} color={color} />
-              <Typography variant="caption" color={color} style={styles.bottomTabLabel}>
+              <Typography
+                variant="caption"
+                color={color}
+                style={[
+                  styles.bottomTabLabel,
+                  isFocused && { fontWeight: '700', color: colors.tabActive },
+                ]}
+              >
                 {label}
               </Typography>
             </Pressable>
@@ -115,7 +157,12 @@ function CustomTabBar({ state, descriptors, navigation, colors, isDesktop }: Cus
   }
 
   return (
-    <View style={[styles.sidebar, { backgroundColor: colors.tabBar, borderRightColor: colors.border }]}>
+    <View
+      style={[
+        styles.sidebar,
+        { backgroundColor: colors.tabBar, borderRightColor: colors.border },
+      ]}
+    >
       <View style={styles.sidebarHeader}>
         <Image
           source={require('../../assets/images/splash-icon.png')}
@@ -128,7 +175,6 @@ function CustomTabBar({ state, descriptors, navigation, colors, isDesktop }: Cus
       </View>
 
       <View style={styles.sidebarMenu}>
-        {/* Spring Background Capsule for active tab */}
         <Animated.View
           style={[
             styles.sidebarIndicator,
@@ -139,10 +185,11 @@ function CustomTabBar({ state, descriptors, navigation, colors, isDesktop }: Cus
           ]}
         />
 
-        {state.routes.map((route: any, index: number) => {
+        {tabRoutes.map((route, index) => {
           const { options } = descriptors[route.key];
-          const label = options.title !== undefined ? options.title : route.name;
-          const isFocused = state.index === index;
+          const label =
+            options.title !== undefined ? options.title : route.name;
+          const isFocused = index === activeIndex;
 
           const onPress = () => {
             const event = navigation.emit({
@@ -157,13 +204,7 @@ function CustomTabBar({ state, descriptors, navigation, colors, isDesktop }: Cus
           };
 
           const color = isFocused ? colors.tabActive : colors.tabInactive;
-
-          let iconName: keyof typeof Ionicons.glyphMap = 'compass-outline';
-          if (route.name === 'discover') iconName = isFocused ? 'compass' : 'compass-outline';
-          else if (route.name === 'search') iconName = isFocused ? 'search' : 'search-outline';
-          else if (route.name === 'circle') iconName = isFocused ? 'people' : 'people-outline';
-          else if (route.name === 'library') iconName = isFocused ? 'library' : 'library-outline';
-          else if (route.name === 'profile') iconName = isFocused ? 'person-circle' : 'person-circle-outline';
+          const iconName = getIconName(route.name, isFocused);
 
           return (
             <Pressable
@@ -171,7 +212,12 @@ function CustomTabBar({ state, descriptors, navigation, colors, isDesktop }: Cus
               onPress={onPress}
               style={styles.sidebarButton}
             >
-              <Ionicons name={iconName} size={22} color={color} style={styles.sidebarIcon} />
+              <Ionicons
+                name={iconName}
+                size={22}
+                color={color}
+                style={styles.sidebarIcon}
+              />
               <Typography variant="body" color={color} style={styles.sidebarLabel}>
                 {label}
               </Typography>
@@ -184,19 +230,17 @@ function CustomTabBar({ state, descriptors, navigation, colors, isDesktop }: Cus
 }
 
 export default function TabLayout() {
-  const { colors } = useTheme();
   const { isDesktop } = useResponsive();
 
   return (
     <Tabs
-      tabBar={(props) => <CustomTabBar {...props} colors={colors} isDesktop={isDesktop} />}
+      tabBar={(props) => <CustomTabBar {...props} isDesktop={isDesktop} />}
       screenOptions={{ headerShown: false }}
     >
-      <Tabs.Screen name="discover" options={{ title: 'Discover' }} />
-      <Tabs.Screen name="search" options={{ title: 'Search' }} />
-      <Tabs.Screen name="circle" options={{ title: 'Circle' }} />
-      <Tabs.Screen name="library" options={{ title: 'Library' }} />
-      <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
+      <Tabs.Screen name="home" options={{ title: 'Home' }} />
+      <Tabs.Screen name="tbr" options={{ title: 'TBR' }} />
+      <Tabs.Screen name="club" options={{ title: 'Clubs' }} />
+      <Tabs.Screen name="settings" options={{ title: 'Settings' }} />
     </Tabs>
   );
 }
