@@ -166,7 +166,7 @@ export default function Onboarding() {
     };
 
     await completeOnboarding(quizResult, persona);
-    router.replace('/(tabs)/discover');
+    router.replace('/(tabs)/home');
   };
 
   const progressPercent = ((currentStep + 1) / TOTAL_STEPS) * 100;

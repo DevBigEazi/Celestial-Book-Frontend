@@ -42,9 +42,9 @@ export default function Login() {
       // Mock login via useAuth
       await authLogin(email);
 
-      router.replace('/(tabs)/discover');
+      router.replace('/(tabs)/home');
     } catch {
-      router.replace('/(tabs)/discover');
+      router.replace('/(tabs)/home');
     }
   };
 

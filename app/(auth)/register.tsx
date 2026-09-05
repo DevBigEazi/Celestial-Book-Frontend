@@ -87,10 +87,10 @@ export default function Register() {
       // Save mock user & registration state via useAuth
       await authRegister(name, email);
 
-      // Redirect to main tabs discover screen
-      router.replace('/(tabs)/discover');
+      // Redirect to main tabs home screen
+      router.replace('/(tabs)/home');
     } catch {
-      router.replace('/(tabs)/discover');
+      router.replace('/(tabs)/home');
     }
   };
 
