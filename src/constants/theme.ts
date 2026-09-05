@@ -53,13 +53,13 @@ export const TYPOGRAPHY_OPTIONS: TypographyStyleOption[] = [
 
 export const FontSize = {
   xs: 11,
-  sm: 13,
-  base: 15,
-  md: 17,
-  lg: 20,
-  xl: 24,
+  sm: 12,
+  base: 14,
+  md: 15,
+  lg: 17,
+  xl: 19,
   '2xl': 22,
-  '3xl': 30,
+  '3xl': 26,
 } as const;
 
 export const LineHeight = {
