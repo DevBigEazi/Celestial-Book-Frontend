@@ -7,6 +7,7 @@ export interface BookClub {
   description: string;
   coverUrl: string;
   currentBook: BookSummary | null;
+  readingBook?: BookSummary | null;
   memberCount: number;
   isJoined: boolean;
   isPrivate?: boolean;
