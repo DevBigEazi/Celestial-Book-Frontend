@@ -79,7 +79,7 @@ export default function HomeScreen() {
   const indieBooks = useMemo(() => mockBooks.filter((b) => b.isNicheOrIndie), []);
 
   return (
-    <ScreenWrapper style={styles.container}>
+    <ScreenWrapper scrollEnabled={false} style={styles.container}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: Spacing['6'],
     paddingTop: Spacing['6'],
-    paddingBottom: Spacing['12'],
+    paddingBottom: Spacing['6'],
   },
   header: {
     flexDirection: 'row',

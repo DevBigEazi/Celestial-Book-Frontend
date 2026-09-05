@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../../../src/context/ThemeContext';
 import { useAuth } from '../../../src/hooks/useAuth';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '../../../src/components/ui/Typography';
 import { Button } from '../../../src/components/ui/Button';
 import { ScreenWrapper } from '../../../src/components/layout/ScreenWrapper';
@@ -32,6 +33,7 @@ interface Review {
 export default function BookDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const { library, toggleLibraryBook } = useAuth();
 
@@ -136,7 +138,7 @@ export default function BookDetail() {
   return (
     <View style={styles.outerContainer}>
       <ScreenWrapper scrollEnabled={true} style={styles.container}>
-        <View style={styles.scrollContent}>
+        <View style={[styles.scrollContent, { paddingBottom: 110 + insets.bottom }]}>
           {/* Header */}
           <View style={styles.header}>
             <Pressable onPress={() => router.back()} style={styles.backIcon}>
@@ -341,7 +343,16 @@ export default function BookDetail() {
       </ScreenWrapper>
 
       {/* Sticky Buy/Save bottom bar */}
-      <View style={[styles.stickyFooter, { backgroundColor: colors.bgPrimary, borderTopColor: colors.border }]}>
+      <View
+        style={[
+          styles.stickyFooter,
+          {
+            backgroundColor: colors.bgPrimary,
+            borderTopColor: colors.border,
+            paddingBottom: Math.max(insets.bottom, Spacing['4']),
+          },
+        ]}
+      >
         <Button
           variant={isInLibrary ? 'outline' : 'primary'}
           label={isInLibrary ? 'Remove Library' : 'Add to Library'}
@@ -547,7 +558,8 @@ const styles = StyleSheet.create({
     right: 0,
     flexDirection: 'row',
     gap: Spacing['4'],
-    padding: Spacing['5'],
+    paddingHorizontal: Spacing['5'],
+    paddingTop: Spacing['3'],
     borderTopWidth: 1,
     ...Shadow.lg,
   },

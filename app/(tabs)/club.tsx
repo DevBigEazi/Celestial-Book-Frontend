@@ -43,7 +43,7 @@ export default function ClubScreen() {
   });
 
   return (
-    <ScreenWrapper style={styles.container}>
+    <ScreenWrapper scrollEnabled={false} style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <Typography variant="heading" color={colors.textPrimary}>
@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   scrollContent: {
-    paddingBottom: Spacing['12'],
+    paddingBottom: Spacing['6'],
   },
   sectionWrap: {
     paddingTop: Spacing['3'],

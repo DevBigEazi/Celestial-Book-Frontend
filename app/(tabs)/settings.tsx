@@ -69,7 +69,7 @@ export default function SettingsScreen() {
   };
 
   return (
-    <ScreenWrapper style={styles.container}>
+    <ScreenWrapper scrollEnabled={false} style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <Typography variant="heading" color={colors.textPrimary}>
@@ -450,7 +450,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: Spacing['6'],
-    paddingBottom: Spacing['12'],
+    paddingBottom: Spacing['6'],
   },
   sectionTitle: {
     marginTop: Spacing['6'],

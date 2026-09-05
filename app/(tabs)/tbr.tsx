@@ -31,200 +31,205 @@ export default function TBRScreen() {
     }
   };
 
-  return (
-    <ScreenWrapper style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Typography variant="heading" color={colors.textPrimary}>
-          {mainSegment === 'tbr' ? 'SAVED WORLDS' : 'YOUR LIBRARY'}
-        </Typography>
-        <Typography variant="caption" color={colors.accent} style={styles.headerSub}>
-          {mainSegment === 'tbr' ? 'TO BE READ · YOUR PERSONAL HORIZON' : 'CONNECTED BOOKSHELVES'}
-        </Typography>
+  const renderHeader = () => (
+    <View style={styles.header}>
+      <Typography variant="heading" color={colors.textPrimary}>
+        {mainSegment === 'tbr' ? 'SAVED WORLDS' : 'YOUR LIBRARY'}
+      </Typography>
+      <Typography variant="caption" color={colors.accent} style={styles.headerSub}>
+        {mainSegment === 'tbr' ? 'TO BE READ · YOUR PERSONAL HORIZON' : 'CONNECTED BOOKSHELVES'}
+      </Typography>
 
-        {/* Main Segment Switcher (TBR vs LIBRARY) */}
-        <View style={[styles.mainSegmentRow, { backgroundColor: colors.bgSecondary }]}>
-          <Pressable
-            onPress={() => setMainSegment('tbr')}
-            style={[
-              styles.mainSegmentBtn,
-              mainSegment === 'tbr' && { backgroundColor: colors.accent },
-            ]}
+      {/* Main Segment Switcher (TBR vs LIBRARY) */}
+      <View style={[styles.mainSegmentRow, { backgroundColor: colors.bgSecondary }]}>
+        <Pressable
+          onPress={() => setMainSegment('tbr')}
+          style={[
+            styles.mainSegmentBtn,
+            mainSegment === 'tbr' && { backgroundColor: colors.accent },
+          ]}
+        >
+          <Typography
+            variant="caption"
+            color={mainSegment === 'tbr' ? colors.accentText : colors.textSecondary}
+            style={[styles.segmentBtnText, mainSegment === 'tbr' && styles.activeSegmentText]}
           >
-            <Typography
-              variant="caption"
-              color={mainSegment === 'tbr' ? colors.accentText : colors.textSecondary}
-              style={[styles.segmentBtnText, mainSegment === 'tbr' && styles.activeSegmentText]}
-            >
-              TO BE READ ({savedBooks.length})
-            </Typography>
-          </Pressable>
+            TO BE READ ({savedBooks.length})
+          </Typography>
+        </Pressable>
 
-          <Pressable
-            onPress={() => setMainSegment('library')}
-            style={[
-              styles.mainSegmentBtn,
-              mainSegment === 'library' && { backgroundColor: colors.accent },
-            ]}
+        <Pressable
+          onPress={() => setMainSegment('library')}
+          style={[
+            styles.mainSegmentBtn,
+            mainSegment === 'library' && { backgroundColor: colors.accent },
+          ]}
+        >
+          <Typography
+            variant="caption"
+            color={mainSegment === 'library' ? colors.accentText : colors.textSecondary}
+            style={[styles.segmentBtnText, mainSegment === 'library' && styles.activeSegmentText]}
           >
-            <Typography
-              variant="caption"
-              color={mainSegment === 'library' ? colors.accentText : colors.textSecondary}
-              style={[styles.segmentBtnText, mainSegment === 'library' && styles.activeSegmentText]}
-            >
-              OWNED LIBRARY ({libraryBooks.length})
-            </Typography>
-          </Pressable>
-        </View>
-
-        {/* Reading Status Filter Sub-bar (for TBR) */}
-        {mainSegment === 'tbr' && (
-          <View style={styles.subFilterRow}>
-            {(
-              [
-                { id: 'want_to_read', label: 'Want to Read' },
-                { id: 'currently_reading', label: 'Reading Now' },
-                { id: 'finished', label: 'Finished' },
-              ] as { id: TBRStatus; label: string }[]
-            ).map((filter) => {
-              const isSelected = tbrStatusFilter === filter.id;
-              return (
-                <Pressable
-                  key={filter.id}
-                  onPress={() => setTbrStatusFilter(filter.id)}
-                  style={[
-                    styles.subFilterPill,
-                    {
-                      backgroundColor: isSelected ? colors.accentMuted : colors.bgCard,
-                      borderColor: isSelected ? colors.accent : colors.border,
-                    },
-                  ]}
-                >
-                  <Typography
-                    variant="caption"
-                    color={isSelected ? colors.accent : colors.textSecondary}
-                    style={isSelected ? styles.activeSubFilterText : undefined}
-                  >
-                    {filter.label}
-                  </Typography>
-                </Pressable>
-              );
-            })}
-          </View>
-        )}
+            OWNED LIBRARY ({libraryBooks.length})
+          </Typography>
+        </Pressable>
       </View>
 
-      {/* Book List or Empty State */}
-      {displayBooks.length === 0 ? (
-        <View style={styles.emptyWrap}>
-          <Ionicons
-            name={mainSegment === 'tbr' ? 'bookmark-outline' : 'library-outline'}
-            size={48}
-            color={colors.textMuted}
-            style={styles.emptyIcon}
-          />
-          <Typography variant="title" color={colors.textPrimary} align="center">
-            {mainSegment === 'tbr' ? 'Your horizon is empty' : 'No books in your library'}
-          </Typography>
-          <Typography
-            variant="body"
-            color={colors.textSecondary}
-            align="center"
-            style={styles.emptySub}
-          >
-            {mainSegment === 'tbr'
-              ? 'Wander the constellations and heart books during discovery to save them here.'
-              : 'Add your owned books or connect your Google Play / Amazon accounts.'}
-          </Typography>
-          <Pressable
-            onPress={() => router.push('/(stack)/swipe')}
-            style={[styles.discoverBtn, { backgroundColor: colors.accent }]}
-          >
-            <Typography variant="body" color={colors.accentText} style={styles.discoverBtnText}>
-              Discover Books
-            </Typography>
-          </Pressable>
-        </View>
-      ) : (
-        <FlatList
-          data={displayBooks}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContent}
-          renderItem={({ item }: { item: Book }) => (
-            <Pressable
-              onPress={() => router.push(`/(stack)/book/${item.id}`)}
-              style={[
-                styles.bookRowCard,
-                { backgroundColor: colors.bgCard, borderColor: colors.border },
-              ]}
-            >
-              <Image
-                source={{ uri: item.coverUrl }}
-                style={styles.bookCover}
-                contentFit="cover"
-              />
-              <View style={styles.bookDetails}>
-                <View style={styles.bookTopRow}>
-                  <Typography variant="subtitle" color={colors.textPrimary} numberOfLines={1}>
-                    {item.title}
-                  </Typography>
-                  <Pressable
-                    onPress={() =>
-                      mainSegment === 'tbr'
-                        ? toggleSaveBook(item.id)
-                        : toggleLibraryBook(item.id)
-                    }
-                    hitSlop={8}
-                  >
-                    <Ionicons
-                      name="trash-outline"
-                      size={18}
-                      color={colors.textMuted}
-                    />
-                  </Pressable>
-                </View>
-
-                <Typography variant="caption" color={colors.textSecondary}>
-                  {item.author}
+      {/* Reading Status Filter Sub-bar (for TBR) */}
+      {mainSegment === 'tbr' && (
+        <View style={styles.subFilterRow}>
+          {(
+            [
+              { id: 'want_to_read', label: 'Want to Read' },
+              { id: 'currently_reading', label: 'Reading Now' },
+              { id: 'finished', label: 'Finished' },
+            ] as { id: TBRStatus; label: string }[]
+          ).map((filter) => {
+            const isSelected = tbrStatusFilter === filter.id;
+            return (
+              <Pressable
+                key={filter.id}
+                onPress={() => setTbrStatusFilter(filter.id)}
+                style={[
+                  styles.subFilterPill,
+                  {
+                    backgroundColor: isSelected ? colors.accentMuted : colors.bgCard,
+                    borderColor: isSelected ? colors.accent : colors.border,
+                  },
+                ]}
+              >
+                <Typography
+                  variant="caption"
+                  color={isSelected ? colors.accent : colors.textSecondary}
+                  style={isSelected ? styles.activeSubFilterText : undefined}
+                >
+                  {filter.label}
                 </Typography>
+              </Pressable>
+            );
+          })}
+        </View>
+      )}
+    </View>
+  );
 
-                {item.atmosphere && (
-                  <View style={[styles.atmBadge, { backgroundColor: colors.bgSecondary, borderColor: colors.border }]}>
-                    <Typography variant="caption" color={colors.accent} style={styles.atmText}>
-                      {item.atmosphere}
+  const renderEmptyState = () => (
+    <View style={styles.emptyWrap}>
+      <Ionicons
+        name={mainSegment === 'tbr' ? 'bookmark-outline' : 'library-outline'}
+        size={48}
+        color={colors.textMuted}
+        style={styles.emptyIcon}
+      />
+      <Typography variant="title" color={colors.textPrimary} align="center">
+        {mainSegment === 'tbr' ? 'Your horizon is empty' : 'No books in your library'}
+      </Typography>
+      <Typography
+        variant="body"
+        color={colors.textSecondary}
+        align="center"
+        style={styles.emptySub}
+      >
+        {mainSegment === 'tbr'
+          ? 'Wander the constellations and heart books during discovery to save them here.'
+          : 'Add your owned books or connect your Google Play / Amazon accounts.'}
+      </Typography>
+      <Pressable
+        onPress={() => router.push('/(stack)/swipe')}
+        style={[styles.discoverBtn, { backgroundColor: colors.accent }]}
+      >
+        <Typography variant="caption" color={colors.accentText} style={styles.discoverBtnText}>
+          DISCOVER BOOKS
+        </Typography>
+      </Pressable>
+    </View>
+  );
+
+  return (
+    <ScreenWrapper scrollEnabled={false} style={styles.container}>
+      <FlatList
+        data={displayBooks}
+        keyExtractor={(item) => item.id}
+        ListHeaderComponent={renderHeader}
+        ListEmptyComponent={renderEmptyState}
+        contentContainerStyle={[
+          styles.listContent,
+          displayBooks.length === 0 && styles.emptyListContent,
+        ]}
+        renderItem={({ item }: { item: Book }) => (
+          <Pressable
+            onPress={() => router.push(`/(stack)/book/${item.id}`)}
+            style={[
+              styles.bookRowCard,
+              { backgroundColor: colors.bgCard, borderColor: colors.border },
+            ]}
+          >
+            <Image
+              source={{ uri: item.coverUrl }}
+              style={styles.bookCover}
+              contentFit="cover"
+            />
+            <View style={styles.bookDetails}>
+              <View style={styles.bookTopRow}>
+                <Typography variant="subtitle" color={colors.textPrimary} numberOfLines={1}>
+                  {item.title}
+                </Typography>
+                <Pressable
+                  onPress={() =>
+                    mainSegment === 'tbr'
+                      ? toggleSaveBook(item.id)
+                      : toggleLibraryBook(item.id)
+                  }
+                  hitSlop={8}
+                >
+                  <Ionicons
+                    name="trash-outline"
+                    size={18}
+                    color={colors.textMuted}
+                  />
+                </Pressable>
+              </View>
+
+              <Typography variant="caption" color={colors.textSecondary}>
+                {item.author}
+              </Typography>
+
+              {item.atmosphere && (
+                <View style={[styles.atmBadge, { backgroundColor: colors.bgSecondary, borderColor: colors.border }]}>
+                  <Typography variant="caption" color={colors.accent} style={styles.atmText}>
+                    {item.atmosphere}
+                  </Typography>
+                </View>
+              )}
+
+              {/* Google Play / Purchase Actions */}
+              <View style={styles.actionsRow}>
+                {item.googlePlayUrl && (
+                  <Pressable
+                    onPress={() => handleOpenGooglePlay(item.googlePlayUrl)}
+                    style={[styles.retailerBadge, { backgroundColor: colors.accentMuted, borderColor: colors.accent }]}>
+                    <Ionicons name="logo-google-playstore" size={12} color={colors.accent} />
+                    <Typography variant="caption" color={colors.accent} style={styles.retailerText}>
+                      Google Play
                     </Typography>
-                  </View>
+                  </Pressable>
                 )}
 
-                {/* Google Play / Purchase Actions */}
-                <View style={styles.actionsRow}>
-                  {item.googlePlayUrl && (
-                    <Pressable
-                      onPress={() => handleOpenGooglePlay(item.googlePlayUrl)}
-                      style={[styles.retailerBadge, { backgroundColor: colors.accentMuted, borderColor: colors.accent }]}>
-                      <Ionicons name="logo-google-playstore" size={12} color={colors.accent} />
-                      <Typography variant="caption" color={colors.accent} style={styles.retailerText}>
-                        Google Play
-                      </Typography>
-                    </Pressable>
-                  )}
-
-                  {item.purchaseUrl && (
-                    <Pressable
-                      onPress={() => Linking.openURL(item.purchaseUrl)}
-                      style={[styles.retailerBadge, { backgroundColor: colors.bgSecondary, borderColor: colors.border }]}>
-                      <Ionicons name="cart-outline" size={12} color={colors.textSecondary} />
-                      <Typography variant="caption" color={colors.textSecondary} style={styles.retailerText}>
-                        Amazon
-                      </Typography>
-                    </Pressable>
-                  )}
-                </View>
+                {item.purchaseUrl && (
+                  <Pressable
+                    onPress={() => Linking.openURL(item.purchaseUrl)}
+                    style={[styles.retailerBadge, { backgroundColor: colors.bgSecondary, borderColor: colors.border }]}>
+                    <Ionicons name="cart-outline" size={12} color={colors.textSecondary} />
+                    <Typography variant="caption" color={colors.textSecondary} style={styles.retailerText}>
+                      Amazon
+                    </Typography>
+                  </Pressable>
+                )}
               </View>
-            </Pressable>
-          )}
-        />
-      )}
+            </View>
+          </Pressable>
+        )}
+      />
     </ScreenWrapper>
   );
 }
@@ -279,8 +284,11 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: Spacing['6'],
-    paddingBottom: Spacing['12'],
+    paddingBottom: Spacing['6'],
     gap: Spacing['3'],
+  },
+  emptyListContent: {
+    flexGrow: 1,
   },
   bookRowCard: {
     flexDirection: 'row',
