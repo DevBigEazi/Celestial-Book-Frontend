@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, FlatList, Pressable, TextInput, ScrollView } from 'react-native';
+import { View, StyleSheet, FlatList, Pressable, TextInput, ScrollView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../../src/context/ThemeContext';
+import { useCommentSheet } from '../../src/context/CommentSheetContext';
 import { Typography } from '../../src/components/ui/Typography';
 import { ScreenWrapper } from '../../src/components/layout/ScreenWrapper';
 import { mockClubs } from '../../src/mock/clubs';
@@ -25,9 +26,38 @@ const EMOTION_ICONS: Record<string, { icon: keyof typeof Ionicons.glyphMap; colo
 export default function ClubScreen() {
   const router = useRouter();
   const { colors } = useTheme();
+  const { openComments } = useCommentSheet();
   const [activeTab, setActiveTab] = useState<ClubTab>('circles');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [selectedEmotion, setSelectedEmotion] = useState<string | null>(null);
+  const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
+  const [likedPosts, setLikedPosts] = useState<Record<string, boolean>>(() => {
+    const map: Record<string, boolean> = {};
+    mockCirclePosts.forEach((p) => {
+      map[p.id] = p.isLiked;
+    });
+    return map;
+  });
+  const [likeCounts, setLikeCounts] = useState<Record<string, number>>(() => {
+    const map: Record<string, number> = {};
+    mockCirclePosts.forEach((p) => {
+      map[p.id] = p.likes;
+    });
+    return map;
+  });
+
+  const handleToggleLike = (postId: string) => {
+    setLikedPosts((prev) => {
+      const current = !!prev[postId];
+      const next = !current;
+      setLikeCounts((counts) => ({
+        ...counts,
+        [postId]: (counts[postId] ?? 0) + (next ? 1 : -1),
+      }));
+      return { ...prev, [postId]: next };
+    });
+  };
 
   const filteredClubs = mockClubs.filter((club) => {
     const matchesSearch =
@@ -54,14 +84,54 @@ export default function ClubScreen() {
         </Typography>
 
         {/* Search Bar per PRD Section 15 */}
-        <View style={[styles.searchBar, { backgroundColor: colors.bgCard, borderColor: colors.border }]}>
-          <Ionicons name="search" size={18} color={colors.textSecondary} style={styles.searchIcon} />
+        <View
+          style={[
+            styles.searchBar,
+            {
+              backgroundColor: colors.bgCard,
+              borderColor: isSearchFocused ? colors.accent : colors.border,
+              borderWidth: 1.5,
+              boxShadow: isSearchFocused
+                ? `0 0 0 3px ${colors.accent}33`
+                : undefined,
+              ...(Platform.OS === 'web'
+                ? ({
+                    outlineStyle: 'none',
+                    outlineWidth: 0,
+                    transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                  } as any)
+                : {}),
+            },
+          ]}
+        >
+          <Ionicons
+            name="search"
+            size={18}
+            color={isSearchFocused ? colors.accent : colors.textSecondary}
+            style={styles.searchIcon}
+          />
           <TextInput
             value={searchQuery}
             onChangeText={setSearchQuery}
+            onFocus={() => setIsSearchFocused(true)}
+            onBlur={() => setIsSearchFocused(false)}
             placeholder="Search by book title, author, circle..."
             placeholderTextColor={colors.textMuted}
-            style={[styles.searchInput, { color: colors.textPrimary }]}
+            selectionColor={colors.accent}
+            cursorColor={colors.accent}
+            style={[
+              styles.searchInput,
+              {
+                color: colors.textPrimary,
+                ...(Platform.OS === 'web'
+                  ? ({
+                      outlineStyle: 'none',
+                      outlineWidth: 0,
+                      boxShadow: 'none',
+                    } as any)
+                  : {}),
+              },
+            ]}
           />
           {searchQuery.length > 0 && (
             <Pressable onPress={() => setSearchQuery('')}>
@@ -235,6 +305,18 @@ export default function ClubScreen() {
           <View style={styles.postsList}>
             {filteredPosts.map((post) => {
               const emotionCfg = EMOTION_ICONS[post.emotion] || EMOTION_ICONS.yearning;
+              const isLiked = !!likedPosts[post.id];
+              const likes = likeCounts[post.id] ?? post.likes;
+              const commentsCount = commentCounts[post.id] ?? post.commentCount;
+
+              const handleOpenComments = () => {
+                openComments(post.id, undefined, () => {
+                  setCommentCounts((prev) => ({
+                    ...prev,
+                    [post.id]: (prev[post.id] ?? post.commentCount) + 1,
+                  }));
+                });
+              };
 
               return (
                 <View
@@ -288,18 +370,43 @@ export default function ClubScreen() {
 
                   {/* Footer */}
                   <View style={[styles.postFooter, { borderTopColor: colors.divider }]}>
-                    <View style={styles.postStat}>
-                      <Ionicons name="heart" size={14} color={colors.accent} />
-                      <Typography variant="caption" color={colors.textSecondary}>
-                        {post.likes}
+                    <Pressable
+                      onPress={() => handleToggleLike(post.id)}
+                      style={styles.postStatBtn}
+                      hitSlop={8}
+                    >
+                      <Ionicons
+                        name={isLiked ? 'heart' : 'heart-outline'}
+                        size={15}
+                        color={isLiked ? colors.error : colors.accent}
+                      />
+                      <Typography
+                        variant="caption"
+                        color={isLiked ? colors.error : colors.textSecondary}
+                        style={styles.statLabel}
+                      >
+                        {likes}
                       </Typography>
-                    </View>
-                    <View style={styles.postStat}>
-                      <Ionicons name="chatbubble-outline" size={14} color={colors.textSecondary} />
-                      <Typography variant="caption" color={colors.textSecondary}>
-                        {post.commentCount} comments
+                    </Pressable>
+
+                    <Pressable
+                      onPress={handleOpenComments}
+                      style={styles.postStatBtn}
+                      hitSlop={8}
+                    >
+                      <Ionicons
+                        name="chatbubble-outline"
+                        size={15}
+                        color={colors.textSecondary}
+                      />
+                      <Typography
+                        variant="caption"
+                        color={colors.textSecondary}
+                        style={styles.statLabel}
+                      >
+                        {commentsCount} {commentsCount === 1 ? 'comment' : 'comments'}
                       </Typography>
-                    </View>
+                    </Pressable>
                   </View>
                 </View>
               );
@@ -480,9 +587,19 @@ const styles = StyleSheet.create({
   },
   postFooter: {
     flexDirection: 'row',
-    gap: Spacing['4'],
+    gap: Spacing['5'],
     paddingTop: Spacing['2'],
     borderTopWidth: 1,
+  },
+  postStatBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingVertical: 2,
+    ...(Platform.OS === 'web' ? { cursor: 'pointer' as const } : {}),
+  },
+  statLabel: {
+    marginLeft: 2,
   },
   postStat: {
     flexDirection: 'row',

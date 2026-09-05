@@ -62,7 +62,6 @@ export function ScreenWrapper({
               backgroundColor: colors.bgPrimary,
               borderColor: colors.border,
               ...Shadow.lg,
-              shadowColor: colors.textPrimary,
             },
           ]}
         >

@@ -17,6 +17,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { ThemeProvider, useTheme } from '../src/context/ThemeContext';
 import { AuthProvider } from '../src/context/AuthContext';
+import { CommentSheetProvider } from '../src/context/CommentSheetContext';
 import { useAuth } from '../src/hooks/useAuth';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -99,7 +100,9 @@ export default function RootLayout() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <NavigationStack fontsLoaded={fontsLoaded} />
+        <CommentSheetProvider>
+          <NavigationStack fontsLoaded={fontsLoaded} />
+        </CommentSheetProvider>
       </AuthProvider>
     </ThemeProvider>
   );
