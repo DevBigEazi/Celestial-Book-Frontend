@@ -56,8 +56,8 @@ function NavigationStack({ fontsLoaded }: NavigationStackProps) {
         router.replace('/(auth)/onboarding');
       }
     } else {
-      // User is logged in and onboarded: redirect to home if in auth group or at root index
-      if (inAuthGroup || segments.length === 0 || segments[0] === 'index') {
+      // User is logged in and onboarded: redirect to home if in auth group (except explicit onboarding retake) or root
+      if ((inAuthGroup && segments[1] !== 'onboarding') || segments.length === 0 || segments[0] === 'index') {
         router.replace('/(tabs)/home');
       }
     }

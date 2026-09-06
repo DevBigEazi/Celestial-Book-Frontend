@@ -19,6 +19,8 @@ export interface AuthContextValue {
   toggleSaveBook: (bookId: string) => Promise<void>;
   toggleLibraryBook: (bookId: string) => Promise<void>;
   updateBookStatus: (bookId: string, status: TBRStatus) => Promise<void>;
+  updateProfile: (updates: Partial<User>) => Promise<void>;
+  cancelAccount: () => Promise<void>;
 }
 
 const DEFAULT_SAVED = ['book-001', 'book-002', 'book-003', 'book-005', 'book-006', 'book-008'];
@@ -280,6 +282,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const updateProfile = async (updates: Partial<User>) => {
+    try {
+      const updatedUser: User = user
+        ? { ...user, ...updates }
+        : {
+            id: 'user-001',
+            name: updates.name || 'Stargazer',
+            username: updates.username || 'stargazer',
+            avatarUrl: updates.avatarUrl || 'https://i.pravatar.cc/150?u=stargazer',
+            bio: updates.bio || 'Wanderer of celestial stories.',
+            booksRead: 5,
+            following: 10,
+            followers: 12,
+            favoriteGenres: ['Fantasy', 'Romance'],
+            ...updates,
+          };
+      await AsyncStorage.setItem('@cb/user', JSON.stringify(updatedUser));
+      setUser(updatedUser);
+    } catch (e) {
+      console.warn('Failed to update profile', e);
+    }
+  };
+
+  const cancelAccount = async () => {
+    setLoading(true);
+    try {
+      await Promise.all([
+        AsyncStorage.removeItem('@cb/user'),
+        AsyncStorage.removeItem('@cb/onboarded'),
+        AsyncStorage.removeItem('@cb/quiz_result'),
+        AsyncStorage.removeItem('@cb/reader_persona'),
+        AsyncStorage.removeItem('@cb/library'),
+        AsyncStorage.removeItem('@cb/saved'),
+        AsyncStorage.removeItem('@cb/joined_clubs'),
+        AsyncStorage.removeItem('@cb/joined_communities'),
+        AsyncStorage.removeItem('@cb/tbr_statuses'),
+      ]);
+      setUser(null);
+      setOnboarded(false);
+      setQuizResult(null);
+      setReaderPersona(null);
+      setLibrary([]);
+      setSaved([]);
+      setTbrStatuses({});
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -299,6 +350,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         toggleSaveBook,
         toggleLibraryBook,
         updateBookStatus,
+        updateProfile,
+        cancelAccount,
       }}
     >
       {children}
