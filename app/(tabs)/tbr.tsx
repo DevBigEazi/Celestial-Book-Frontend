@@ -490,7 +490,7 @@ export default function TBRScreen() {
                       { backgroundColor: colors.bgSecondary, borderColor: colors.border },
                     ]}
                   >
-                    <Ionicons name="sparkles-outline" size={10} color={colors.accent} style={{ marginRight: 3 }} />
+                    <Ionicons name="moon-outline" size={10} color={colors.accent} style={{ marginRight: 3 }} />
                     <Typography variant="caption" color={colors.accent} style={styles.atmText} numberOfLines={1}>
                       {item.atmosphere}
                     </Typography>

@@ -751,10 +751,10 @@ export default function BookClubDetail() {
           ) : (
             <Card style={styles.joinPromptCard} variant="outlined">
               <Ionicons
-                name="sparkles"
-                size={24}
+                name="planet-outline"
+                size={26}
                 color={colors.accent}
-                style={styles.promptSparkle}
+                style={styles.promptIcon}
               />
               <Typography
                 variant="body"
@@ -1351,11 +1351,11 @@ const styles = StyleSheet.create({
     minWidth: 100,
   },
   joinPromptCard: {
-    padding: Spacing["5"],
-    alignItems: "center",
+    padding: Spacing['5'],
+    alignItems: 'center',
   },
-  promptSparkle: {
-    marginBottom: Spacing["2"],
+  promptIcon: {
+    marginBottom: Spacing['2'],
   },
   promptTitle: {
     fontWeight: "700",
