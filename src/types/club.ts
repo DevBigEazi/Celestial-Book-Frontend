@@ -1,4 +1,4 @@
-import { BookSummary } from './book';
+import { BookSummary } from "./book";
 
 export interface BookClub {
   id: string;
@@ -13,4 +13,5 @@ export interface BookClub {
   isPrivate?: boolean;
   isTemporary?: boolean; // ~2 month clubs
   endsAt?: string | null; // ISO string, only if isTemporary
+  readingMilestone?: string; // e.g. "Currently on Chapter 14 · 65% Complete"
 }
