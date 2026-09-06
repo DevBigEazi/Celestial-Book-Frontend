@@ -1,11 +1,16 @@
 export interface RecommendationResult {
   bookId: string;
-  reason: string;       // "Why this book" blurb
+  reason: string; // "Why this book" blurb
 }
 
 export interface ReaderPersona {
-  name: string;         // e.g. "The Midnight Explorer"
-  description: string;  // 2–3 sentences about this reader type
+  tagline: string; // e.g. "Romantic · Atmospheric · Slow Burn"
+  name: string; // e.g. "The Midnight Explorer"
+  title?: string;
+  description: string; // 2–3 sentences about this reader type
+  summary?: string;
+  genres?: string[];
+  tropes?: string[];
 }
 
 export interface AILoadingState {

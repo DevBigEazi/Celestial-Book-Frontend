@@ -24,8 +24,6 @@ export function Card({
     variant === 'outlined' && { borderWidth: 1, borderColor: colors.border },
     variant === 'elevated' && {
       ...Shadow.md,
-      shadowColor: colors.textPrimary,
-      elevation: 4,
     },
     style,
   ];

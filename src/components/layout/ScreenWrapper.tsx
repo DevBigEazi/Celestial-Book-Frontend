@@ -17,13 +17,14 @@ export function ScreenWrapper({
   children,
   scrollEnabled = true,
   style,
-  edges = ['top', 'bottom', 'left', 'right'],
+  edges,
 }: ScreenWrapperProps) {
   const { colors } = useTheme();
   const { isDesktop } = useResponsive();
   const segments = useSegments();
 
   const isInTabs = segments[0] === '(tabs)';
+  const resolvedEdges: Edge[] = edges ?? (isInTabs ? ['top', 'left', 'right'] : ['top', 'bottom', 'left', 'right']);
 
   const containerStyle = [
     styles.container,
@@ -61,11 +62,10 @@ export function ScreenWrapper({
               backgroundColor: colors.bgPrimary,
               borderColor: colors.border,
               ...Shadow.lg,
-              shadowColor: colors.textPrimary,
             },
           ]}
         >
-          <SafeAreaView edges={edges} style={styles.safeArea}>
+          <SafeAreaView edges={resolvedEdges} style={styles.safeArea}>
             {content}
           </SafeAreaView>
         </View>
@@ -74,7 +74,7 @@ export function ScreenWrapper({
   }
 
   return (
-    <SafeAreaView edges={edges} style={[styles.safeArea, { backgroundColor: colors.bgPrimary }]}>
+    <SafeAreaView edges={resolvedEdges} style={[styles.safeArea, { backgroundColor: colors.bgPrimary }]}>
       {content}
     </SafeAreaView>
   );

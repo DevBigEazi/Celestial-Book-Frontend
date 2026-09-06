@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 128" width="512" height="128">
+  <g transform="translate(24, 18) scale(0.09)">
+    <!-- Constellation Lines -->
+    <g stroke="#E5C158" stroke-width="8" opacity="0.9" stroke-linecap="round">
+      <line x1="512" y1="200" x2="362" y2="300" />
+      <line x1="362" y1="300" x2="420" y2="420" />
+      <line x1="512" y1="200" x2="662" y2="300" />
+      <line x1="662" y1="300" x2="604" y2="420" />
+      <line x1="512" y1="200" x2="512" y2="350" />
+    </g>
+    <!-- Stars -->
+    <circle cx="512" cy="200" r="32" fill="#FFFDF7" />
+    <circle cx="512" cy="200" r="48" fill="none" stroke="#E5C158" stroke-width="6" />
+    <circle cx="362" cy="300" r="24" fill="#E5C158" />
+    <circle cx="662" cy="300" r="24" fill="#E5C158" />
+    <!-- Book -->
+    <g transform="translate(0, 100)">
+      <path d="M 512 590 C 390 560 230 610 160 650 L 160 450 C 230 410 390 360 512 390 Z" fill="#D4AF37" />
+      <path d="M 512 590 C 634 560 794 410 864 450 L 864 650 C 794 610 634 560 512 590 Z" fill="#D4AF37" />
+      <path d="M 508 575 C 388 545 242 590 180 630 L 180 430 C 242 390 388 345 508 375 Z" fill="#FFFDF7" />
+      <path d="M 516 575 C 636 545 782 590 844 630 L 844 430 C 782 390 636 345 516 375 Z" fill="#FFFDF7" />
+    </g>
+  </g>
+  <text x="130" y="62" fill="#FFFDF7" font-family="Georgia, serif" font-size="34" font-weight="bold" letter-spacing="4">CELESTIAL</text>
+  <text x="132" y="92" fill="#E5C158" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="600" letter-spacing="8">BOOK</text>
+</svg>

@@ -1,4 +1,12 @@
-import { User } from './user';
+import { User } from "./user";
+
+export type EmotionType =
+  | "happy"
+  | "sad"
+  | "angry"
+  | "surprised"
+  | "invested"
+  | "yearning";
 
 export interface Comment {
   id: string;
@@ -7,4 +15,19 @@ export interface Comment {
   content: string;
   likes: number;
   createdAt: string; // ISO string
+}
+
+export interface CirclePost {
+  id: string;
+  clubId: string;
+  author: User;
+  emotion: EmotionType;
+  content: string;
+  bookTitle?: string;
+  chapterOrPageRef?: string;
+  topicTag?: string;
+  likes: number;
+  commentCount: number;
+  createdAt: string;
+  isLiked: boolean;
 }

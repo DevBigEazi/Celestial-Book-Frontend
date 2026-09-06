@@ -1,5 +1,4 @@
-import React from 'react';
-import { Text, StyleSheet, TextStyle } from 'react-native';
+import { Text, StyleSheet, StyleProp, TextStyle } from 'react-native';
 import { useTheme } from '../../hooks/useTheme';
 import { FontFamily, FontSize, LineHeight } from '../../constants/theme';
 
@@ -19,7 +18,7 @@ export interface TypographyProps {
   align?: 'left' | 'center' | 'right';
   numberOfLines?: number;
   children: React.ReactNode;
-  style?: TextStyle;
+  style?: StyleProp<TextStyle>;
 }
 
 export function Typography({
