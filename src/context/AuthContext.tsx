@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { User, QuizResult, ReaderPersona } from '../types';
+import { User, QuizResult, ReaderPersona, TBRStatus } from '../types';
 
 export interface AuthContextValue {
   user: User | null;
@@ -9,6 +9,7 @@ export interface AuthContextValue {
   readerPersona: ReaderPersona | null;
   library: string[];
   saved: string[];
+  tbrStatuses: Record<string, TBRStatus>;
   loading: boolean;
   login: (email: string) => Promise<void>;
   register: (name: string, email: string) => Promise<void>;
@@ -17,7 +18,19 @@ export interface AuthContextValue {
   resetOnboarding: () => Promise<void>;
   toggleSaveBook: (bookId: string) => Promise<void>;
   toggleLibraryBook: (bookId: string) => Promise<void>;
+  updateBookStatus: (bookId: string, status: TBRStatus) => Promise<void>;
 }
+
+const DEFAULT_SAVED = ['book-001', 'book-002', 'book-003', 'book-005', 'book-006', 'book-008'];
+const DEFAULT_LIBRARY = ['book-001', 'book-002', 'book-005', 'book-007', 'book-008'];
+const DEFAULT_TBR_STATUSES: Record<string, TBRStatus> = {
+  'book-001': 'currently_reading',
+  'book-002': 'want_to_read',
+  'book-003': 'want_to_read',
+  'book-005': 'finished',
+  'book-006': 'want_to_read',
+  'book-008': 'currently_reading',
+};
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
@@ -26,15 +39,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [onboarded, setOnboarded] = useState<boolean>(false);
   const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
   const [readerPersona, setReaderPersona] = useState<ReaderPersona | null>(null);
-  const [library, setLibrary] = useState<string[]>([]);
-  const [saved, setSaved] = useState<string[]>([]);
+  const [library, setLibrary] = useState<string[]>(DEFAULT_LIBRARY);
+  const [saved, setSaved] = useState<string[]>(DEFAULT_SAVED);
+  const [tbrStatuses, setTbrStatuses] = useState<Record<string, TBRStatus>>(DEFAULT_TBR_STATUSES);
   const [loading, setLoading] = useState<boolean>(true);
 
   // Load state from AsyncStorage on mount
   useEffect(() => {
     async function loadAuthState() {
       try {
-        const [storedUser, storedOnboarded, storedQuiz, storedPersona, storedLib, storedSav] =
+        const [storedUser, storedOnboarded, storedQuiz, storedPersona, storedLib, storedSav, storedStatuses] =
           await Promise.all([
             AsyncStorage.getItem('@cb/user'),
             AsyncStorage.getItem('@cb/onboarded'),
@@ -42,6 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             AsyncStorage.getItem('@cb/reader_persona'),
             AsyncStorage.getItem('@cb/library'),
             AsyncStorage.getItem('@cb/saved'),
+            AsyncStorage.getItem('@cb/tbr_statuses'),
           ]);
 
         if (storedUser) {
@@ -56,9 +71,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         if (storedLib) {
           setLibrary(JSON.parse(storedLib));
+        } else {
+          setLibrary(DEFAULT_LIBRARY);
         }
         if (storedSav) {
           setSaved(JSON.parse(storedSav));
+        } else {
+          setSaved(DEFAULT_SAVED);
+        }
+        if (storedStatuses) {
+          setTbrStatuses(JSON.parse(storedStatuses));
+        } else {
+          setTbrStatuses(DEFAULT_TBR_STATUSES);
         }
       } catch {
         // Ignored
@@ -157,12 +181,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         AsyncStorage.removeItem('@cb/joined_clubs'),
         AsyncStorage.removeItem('@cb/joined_communities'),
         AsyncStorage.removeItem('@cb/reader_persona'),
+        AsyncStorage.removeItem('@cb/tbr_statuses'),
       ]);
       setUser(null);
       setOnboarded(false);
       setQuizResult(null);
       setLibrary([]);
       setSaved([]);
+      setTbrStatuses({});
     } finally {
       setLoading(false);
     }
@@ -239,6 +265,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const updateBookStatus = async (bookId: string, status: TBRStatus) => {
+    try {
+      const nextStatuses = { ...tbrStatuses, [bookId]: status };
+      if (!saved.includes(bookId)) {
+        const nextSaved = [...saved, bookId];
+        await AsyncStorage.setItem('@cb/saved', JSON.stringify(nextSaved));
+        setSaved(nextSaved);
+      }
+      await AsyncStorage.setItem('@cb/tbr_statuses', JSON.stringify(nextStatuses));
+      setTbrStatuses(nextStatuses);
+    } catch (e) {
+      console.warn('Failed to update book status', e);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -248,6 +289,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         readerPersona,
         library,
         saved,
+        tbrStatuses,
         loading,
         login,
         register,
@@ -256,6 +298,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         resetOnboarding,
         toggleSaveBook,
         toggleLibraryBook,
+        updateBookStatus,
       }}
     >
       {children}
